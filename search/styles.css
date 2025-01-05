@@ -12,14 +12,23 @@ body {
     color: white;
 }
 
-.logo {
-    color: rgb(233, 233, 233);
-    font-size: 5rem;
-    text-align: center;
-    margin-bottom: 20px;
+@media (max-width: 599px) {
+    i {
+        display: block;
+        text-align: left;
+        top: 32px;
+    }
+}
+
+.logo-small {
+    margin: 15px 20px;
+    font-weight: 500;
 }
 
 .header-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 }
 
 .nav {
@@ -27,7 +36,6 @@ body {
     list-style-type: none;
     width: 100%;
     padding: 10px 20px 0px 0px;
-    margin-bottom: 200px;
 }
 
 .nav-item {
@@ -46,13 +54,46 @@ body {
     text-decoration: underline;
 }
 
+.logo {
+    color: rgb(233, 233, 233);
+    font-size: 5rem;
+    text-align: center;
+    margin: 200px 0px 20px 0px;
+    font-weight: 500;
+}
+
+.logo-subtext {
+    margin: -11px;
+    position: relative;
+    top: 299px;
+    left: 620px;
+    color: royalblue;
+}
+
+.page-title {
+    color: salmon;
+    font-weight: 400;
+    border-bottom: 1px solid black;
+    padding: 20px 0 35px 35px;
+    
+}
+
+.advanced-search-div {
+    border: 1px solid red;
+    margin: 0 0 0 35px;
+}
+
 .form-div {
-    display: block;
     text-align: center;
 }
 
 .input-div {
-    margin-bottom: 10px;
+}
+
+.advanced-search-input-label {
+    text-align: left;
+    font-size: 13px;
+    color: #9e9e9e;
 }
 
 i {
@@ -67,7 +108,6 @@ i {
 }
 
 .search-input {
-    height: 45px;
     width: 575px;
     padding: 15px 15px 15px 45px;
     border: 0px none;
@@ -80,6 +120,17 @@ i {
 .search-input:hover {
     background-color: #5f6368;
 }
+
+.advanced-input:focus-visible {
+    outline: 1px solid lightskyblue;
+}
+
+.advanced-input {
+    background-color: #202124;
+    border: 1px solid #5f6368;
+}
+
+
 
 .btn-div {
     height: 75px;
