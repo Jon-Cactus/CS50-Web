@@ -18,29 +18,21 @@
         <h3 class="page-title">Advanced Search</h3>
         <div class="advanced-search-div">
             <p>Find pages with...</p>
-            <div class="form-div">
+            
                 <form action="https://google.com/search">
-                    <div class="advanced-search-field">
-                        <label for="TODO" class="advanced-search-input-label">all these words:</label>
-                        <input type="text" name="q" class="advanced-input">
-                    </div>
-                    <div class="advanced-search-field">
-                        <label for="TODO" class="advanced-search-input-label">this exact word or phrase:</label>
-                        <input type="text" name="q" class="advanced-input">
-                    </div>
-                    <div class="advanced-search-field">    
-                        <label for="TODO" class="advanced-search-input-label">any of these words:</label>
-                        <input type="text" name="q" class="advanced-input">
-                    </div>
-                    <div class="advanced-search-field">
-                        <label for="TODO" class="advanced-search-input-label">none of these words:</label>
-                        <input type="text" name="q" class="advanced-input">
-                    </div>
+                        <div class="advanced-search-row"><label for="TODO" class="advanced-search-label">all these words:</label>
+                        <input type="text" name="as_q" class="advanced-search-input"></div>
+                        <div class="advanced-search-row"><label for="TODO" class="advanced-search-label">this exact word or phrase:</label>
+                        <input type="text" name="as_epq" class="advanced-search-input"></div>
+                        <div class="advanced-search-row"><label for="TODO" class="advanced-search-label">any of these words:</label>
+                        <input type="text" name="as_oq" class="advanced-search-input"></div>
+                        <div class="advanced-search-row"><label for="TODO" class="advanced-search-label">none of these words:</label>
+                        <input type="text" name="as_eq" class="advanced-search-input"></div>
                     <div class="btn-div">
                         <input type="submit" value="Advanced Search" class="btn">
                     </div>
                 </form>
-            </div>
+            
         </div>
     </body>
 </html>

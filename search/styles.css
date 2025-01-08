@@ -72,28 +72,44 @@ body {
 
 .page-title {
     color: salmon;
+    font-size: 20px;
     font-weight: 400;
     border-bottom: 1px solid black;
-    padding: 20px 0 35px 35px;
-    
+    padding: 20px 0 30px 45px;
 }
 
 .advanced-search-div {
-    border: 1px solid red;
-    margin: 0 0 0 35px;
+    margin: 45px 0 0 45px;
+    border-bottom: 1px solid black;
+    padding: 0 0 15px 0;
+}
+
+.advanced-search-div p {
+    margin-bottom: 20px;
+}
+
+.advanced-search-row {
+    display: flex;
+    margin: 13px 0 0 0;
+}
+
+.advanced-search-label {
+    text-align: left;
+    font-size: 13px;
+    width: 17%;
+    color: #9e9e9e;
+}
+
+.advanced-search-input {
+    text-align: center;
+    height: 30px;
+    width: 50%;
+    background-color: #202124;
+    border: 1px solid #5f6368;
 }
 
 .form-div {
     text-align: center;
-}
-
-.input-div {
-}
-
-.advanced-search-input-label {
-    text-align: left;
-    font-size: 13px;
-    color: #9e9e9e;
 }
 
 i {
@@ -125,13 +141,6 @@ i {
     outline: 1px solid lightskyblue;
 }
 
-.advanced-input {
-    background-color: #202124;
-    border: 1px solid #5f6368;
-}
-
-
-
 .btn-div {
     height: 75px;
     /* I understand that the following four lines are somewhat unneccessary and that the buttons can
@@ -148,7 +157,15 @@ i {
     background-color: #303030;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 3px;
+}
+
+.btn[value="Advanced Search"] {
+    background-color: #8ab4f8;
+    color: black;
+    margin: 0 0 0 235px;
+    font-size: 11px;
+    padding: 0px 15px;
 }
 
 .btn:hover {
