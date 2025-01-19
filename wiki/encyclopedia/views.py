@@ -3,20 +3,19 @@ from django.urls import reverse
 
 from . import util
 
-
+#TODO check variable names for potential refactors
 def index(request):
     # Entry search query
-    if request.method == "GET" and 'q' in request.GET:
+    if 'q' in request.GET:
         entries = util.list_entries()
         q = request.GET.get('q')
         if q not in entries:
             return redirect(reverse('error', args=[q]))
         else:
             return redirect(reverse('entry', args=[q]))
-    else:
-        return render(request, "encyclopedia/index.html", {
-            "entries": util.list_entries()
-        })
+    return render(request, "encyclopedia/index.html", {
+        "entries": util.list_entries()
+    })
 
 """
 Need to complete generate_entry before index can be properly displayed
