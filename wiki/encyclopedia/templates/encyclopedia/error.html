@@ -1,9 +1,9 @@
-{% extends "encyclopedia/layout.html %}
+{% extends "encyclopedia/layout.html" %}
 
 {% block title %}
     Error
 {% endblock %}
 
 {% block body %}
-    <p>Page not found... Would you like to <a href="{% url 'add' title=q %}">create a page for {{ q }}?</a></p>
+    <p>Page not found... Would you like to <a href="{% url 'add' search_query=search_query %}">create a page for {{ search_query }}?</a></p>
 {% endblock %}

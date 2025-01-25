@@ -8,11 +8,11 @@ def index(request):
     # Entry search query
     if 'q' in request.GET:
         entries = util.list_entries()
-        q = request.GET.get('q')
-        if q not in entries:
-            return redirect(reverse('error', args=[q]))
+        search_query = request.GET.get('q')
+        if search_query not in entries:
+            return redirect(reverse('error', args=[search_query]))
         else:
-            return redirect(reverse('entry', args=[q]))
+            return redirect(reverse('entry', args=[search_query]))
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries()
     })
@@ -26,12 +26,21 @@ def generate_entry(request, entry):
         "entry": entry
     })
 
-def add_entry(request):
+def add_entry(request, search_query=None):
     #TODO create an add.html and correctly tie it to the error view and error.html
-    return False
+    if search_query is not None:
+        return render(request, "encyclopedia/add.html", {
+            "search_query": search_query
+        })
+    else:
+        return render(request, "encyclopedia/add.html")
 
-def error(request, q):
+def error(request, search_query=None):
     #TODO: create a redirect to add a page with the search query
+
     return render(request, "encyclopedia/error.html", {
-        "q": q
+        "search_query": search_query
     })
+
+def save(request):
+    return False

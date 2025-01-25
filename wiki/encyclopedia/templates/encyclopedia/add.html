@@ -1,0 +1,15 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Add Page
+{% endblock %}
+
+{% block body %}
+    <form method="POST" action="{% url 'save' %}">
+        <input type="text" name="title" {% if search_query %}value="{{ search_query }}"{% endif %} placeholder="Page Title">
+        <textarea type="text" name="body" placeholder="Enter description in Markdown"></textarea>
+        <input type="submit">
+    </form>
+    <a target="_blank" href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
+    >What is Markdown?</a>
+{% endblock %}
