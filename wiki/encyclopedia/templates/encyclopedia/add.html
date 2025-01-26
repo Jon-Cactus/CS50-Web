@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block body %}
-    <form method="POST" action="{% url 'save' %}">
+    <form method="post" action="{% url 'save' %}">
+        {% csrf_token %}
         <input type="text" name="title" {% if search_query %}value="{{ search_query }}"{% endif %} placeholder="Page Title">
-        <textarea type="text" name="body" placeholder="Enter description in Markdown"></textarea>
+        <textarea type="text" name="entry_text" placeholder="Enter description in Markdown"></textarea>
         <input type="submit">
     </form>
     <a target="_blank" href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
