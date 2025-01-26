@@ -5,5 +5,7 @@
 {% endblock %}
 
 {% block body %}
-    <p>Page not found... Would you like to <a href="{% url 'add' search_query=search_query %}">create a page for {{ search_query }}?</a></p>
+    {% if entry_title %}
+        <p>{{ entry_title }} already exists... <!--TODO-->Overwrite it?</p>
+    {% endif %}
 {% endblock %}

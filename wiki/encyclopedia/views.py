@@ -24,15 +24,29 @@ def generate_entry(request, entry_title):
     })
 
 def add_entry(request, search_query=None):
-    if 'entry_text' in request.POST:
+    if request.method == "POST":
+        entries = util.list_entries()
         entry_text = request.POST.get('entry_text')
-        util.save_entry(search_query, entry_text)
-    if search_query is not None:
-        return render(request, "encyclopedia/add.html", {
-            "search_query": search_query
-        })
+        entry_title = request.POST.get('entry_title')
+        # If the user properly input both fields
+        if entry_title is not None and entry_text is not None and entry_title not in entries:
+            util.save_entry(entry_title, entry_text)
+            return redirect(reverse('entry', args=[entry_title]))
+        else:
+            #TODO Handle different cases for errors:
+                # Entry exists
+                # Title field empty
+                # Body field empty
+            return redirect(reverse('error', args=[entry_title]))
     else:
-        return render(request, "encyclopedia/add.html")
+        # If the user has been redirected by searching
+        if search_query is not None:
+            return render(request, "encyclopedia/add.html", {
+                "search_query": search_query
+            })
+        # If the user clicked "Create New Page"
+        else:
+            return render(request, "encyclopedia/add.html")
 
 def results(request, search_query=None):
     #TODO: List entries that fit the search query as a substring
@@ -50,3 +64,8 @@ def results(request, search_query=None):
         return render(request, "encyclopedia/results.html", {
             "search_query": search_query
         })
+
+def error(request, entry_title):
+    return render(request, 'encyclopedia/error.html', {
+        "entry_title": entry_title
+    })

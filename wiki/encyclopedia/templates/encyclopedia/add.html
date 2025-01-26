@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block body %}
-    <form method="post" action="{% url 'save' %}">
+    <form method="post" action="{% url 'add_no_query' %}">
         {% csrf_token %}
-        <input type="text" name="title" {% if search_query %}value="{{ search_query }}"{% endif %} placeholder="Page Title">
+        <input type="text" name="entry_title" {% if search_query %}value="{{ search_query }}"{% endif %} placeholder="Page Title">
         <textarea type="text" name="entry_text" placeholder="Enter description in Markdown"></textarea>
         <input type="submit">
     </form>
