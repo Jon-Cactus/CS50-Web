@@ -6,6 +6,6 @@
 
 {% block body %}
     {% if entry_title %}
-        <p>{{ entry_title }} already exists... <!--TODO-->Overwrite it?</p>
+        <p>{{ entry_title }} already exists... <a href="{% url 'add_no_query' %}?action=edit&edit_title={{ entry_title }}">Overwrite it?</a></p>
     {% endif %}
 {% endblock %}

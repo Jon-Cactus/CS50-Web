@@ -5,12 +5,31 @@
 {% endblock %}
 
 {% block body %}
-    <form method="post" action="{% url 'add_no_query' %}">
-        {% csrf_token %}
-        <input type="text" name="entry_title" {% if search_query %}value="{{ search_query }}"{% endif %} placeholder="Page Title">
-        <textarea type="text" name="entry_text" placeholder="Enter description in Markdown"></textarea>
-        <input type="submit">
-    </form>
+    {% if action == 'add' %}
+
+        <form method="post" action="{% url 'add_no_query' %}">
+            {% csrf_token %}
+            <input type="text" name="entry_title" {% if search_query %}value="{{ search_query }}"{% endif %} placeholder="Page Title">
+            <textarea type="text" name="entry_text" placeholder="Enter description in Markdown"></textarea>
+            <input type="hidden" name="action" value="add">
+            <input type="submit">
+        </form>
+
+    {% elif action == 'edit' %}
+        <!--For debugging purposes-->
+        {% if entry_title %}
+            <p>Title: {{ entry_title }}</p>
+        {% endif %}
+    <!--Not being handled correctly-->
+        <form method="post" action="{% url 'add_no_query' %}">
+            {% csrf_token %}
+            <input type="text" name="entry_title" value="{{ entry_title }}">
+            <textarea type="text" name="entry_text">{{ entry_content }}</textarea>
+            <input type="hidden" name="action" value="edit">
+            <input type="submit">
+        </form>
+
+    {% endif %}
     <a target="_blank" href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
     >What is Markdown?</a>
 {% endblock %}

@@ -6,4 +6,13 @@
 
 {% block body %}
     {{ entry_content|safe }}
+    <!--
+    Not working properly
+    Should take the user to the "edit" version of the add page,
+    where the title and its entry content are generated in the title input and
+    textarea.
+    -->
+    <form method="get" action="{% url 'add_no_query'  %}?action=edit&edit_title={{ entry_title }}">
+        <button type="submit" name="action" value="edit">Edit</button>
+    </form>
 {% endblock %}

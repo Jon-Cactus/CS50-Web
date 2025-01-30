@@ -20,36 +20,70 @@ def index(request):
 def generate_entry(request, entry_title):
     entry_content = util.get_entry(entry_title)
     return render(request, "encyclopedia/entry.html", {
-        "entry_content": markdown2.markdown(entry_content)
+        "entry_content": markdown2.markdown(entry_content),
+        "entry_title": entry_title
     })
 
 def add_entry(request, search_query=None):
+
+    # If submitting add or edit form
     if request.method == "POST":
-        entries = util.list_entries()
+        action = request.POST.get('action') #Determine which form was submitted
         entry_text = request.POST.get('entry_text')
         entry_title = request.POST.get('entry_title')
+
         # If the user properly input both fields
-        if entry_title is not None and entry_text is not None and entry_title not in entries:
-            util.save_entry(entry_title, entry_text)
-            return redirect(reverse('entry', args=[entry_title]))
-        else:
-            #TODO Handle different cases for errors:
-                # Entry exists
-                # Title field empty
-                # Body field empty
-            return redirect(reverse('error', args=[entry_title]))
+        if entry_title is not None and entry_text is not None:
+            if action == 'edit':
+                util.save_entry(entry_title, entry_text)
+                return redirect(reverse('entry', args=[entry_title]))
+            elif action == 'add':
+                entries = util.list_entries()
+
+                # Does the entry already exist?
+                if entry_title not in entries:
+                    util.save_entry(entry_title, entry_text)
+                    return redirect(reverse('entry', args=[entry_title]))
+                else:
+                    return redirect(reverse('error', args=[entry_title]))      
+        elif entry_title is None:
+            #TODO 
+            return False
+        elif entry_text is None:
+            #TODO
+            return False
+        
+    # if get request
     else:
+        action = request.GET.get('action') # Determine whether the user wants to add or edit
+        edit_title = request.GET.get('edit_title')
+        entry_content = util.get_entry(edit_title) if edit_title else ""
+        # If the user clicked "Create New Page"
+        if action == 'add':
+            return render(request, "encyclopedia/add.html", {
+                "action": action
+            })
+        
+        # If the user clicks "edit"
+        # Not working properly
+        elif action == 'edit':
+            # Debug
+            print(f"Edit title: {edit_title}")
+            print(entry_content)
+            return render(request, "encyclopedia/add.html", {
+                "action": action,
+                "entry_title": edit_title,
+                "entry_content": markdown2.markdown(entry_content)
+            })
+        
         # If the user has been redirected by searching
-        if search_query is not None:
+        else:
             return render(request, "encyclopedia/add.html", {
                 "search_query": search_query
             })
-        # If the user clicked "Create New Page"
-        else:
-            return render(request, "encyclopedia/add.html")
+    
 
 def results(request, search_query=None):
-    #TODO: List entries that fit the search query as a substring
     results = []
     entries = util.list_entries()
     for entry in entries:
