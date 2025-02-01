@@ -12,7 +12,10 @@
     where the title and its entry content are generated in the title input and
     textarea.
     -->
-    <form method="get" action="{% url 'add_no_query'  %}?action=edit&edit_title={{ entry_title }}">
-        <button type="submit" name="action" value="edit">Edit</button>
+    <form method="get" action="{% url 'add_no_query'  %}">
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" name="entry_title" value="{{ entry_title }}">
+        {% csrf_token %}
+        <button type="submit">Edit</button>
     </form>
 {% endblock %}
