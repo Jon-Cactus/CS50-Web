@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-import markdown2
+import markdown2, random, math
 from . import util
 
 def index(request):
@@ -17,6 +17,20 @@ def index(request):
     })
 
 def generate_entry(request, entry_title):
+    action = request.GET.get('action')
+    entries = util.list_entries()
+
+    if action == "random":
+        random_index = math.floor(random.uniform(0, len(entries)))
+        entry_title = entries[random_index] # Get random entry
+        entry_content = util.get_entry(entry_title)
+        return render(request, "encyclopedia/entry.html", {
+            "entry_content": markdown2.markdown(entry_content),
+            "entry_title": entry_title
+        })
+    
+    if entry_title not in entries:
+        return redirect(reverse('results', args=[entry_title]))
     entry_content = util.get_entry(entry_title)
     return render(request, "encyclopedia/entry.html", {
         "entry_content": markdown2.markdown(entry_content),
@@ -44,7 +58,6 @@ def add_entry(request, search_query=None):
         
         if action == "add":
             if entry_title in entries:
-                # Test if render works here as well just because
                 return redirect(reverse('error', args=[entry_title]))
             util.save_entry(entry_title, entry_content)
             return redirect(reverse('entry', args=[entry_title]))
@@ -56,7 +69,8 @@ def add_entry(request, search_query=None):
 
         if action == 'add':
             return render(request, "encyclopedia/add.html", {
-                "action": "add"
+                "action": "add",
+                "search_query": search_query
             })
         
         if action == 'edit' and entry_title:

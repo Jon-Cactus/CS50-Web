@@ -7,7 +7,7 @@
 {% block body %}
     {% if entry_title %}
     <p><a href="{% url 'entry' entry_title=entry_title %}">{{ entry_title }}</a> already exists... 
-    <a target="_blank" href="{% url 'add_no_query' %}?action=edit&entry_title={{ entry_title }}">overwrite it?</a></p>
+    <a target="_blank" href="{% url 'add_no_query' %}?action=edit&entry_title={{ entry_title }}">Edit entry?</a></p>
     {% endif %}
     {% if error_message %}
         <p>{{ error_message }}</p>

@@ -6,13 +6,16 @@
 
 {% block body %}
     {% if results %}
+
     <ul>
         {% for result in results %}
             <li><a href="{% url 'entry' entry_title=result %}">{{ result }}</a></li>
         {% endfor %}
     </ul>
-    <p>Create an entry for <a href="{% url 'add' search_query=search_query %}">{{ search_query }}?</a></p>
+
+    <p>Create an entry for <a href="{% url 'add' search_query=search_query %}?action=add">{{ search_query }} </a>instead?</p>
+    
     {% else %}
-        <p>No entries found... Create an entry for <a href="{% url 'add' search_query=search_query %}">{{ search_query }}?</a></p>
+        <p>No entries found... Create an entry for <a href="{% url 'add' search_query=search_query %}?action=add">{{ search_query }}</a>?</p>
     {% endif %}
 {% endblock %}
