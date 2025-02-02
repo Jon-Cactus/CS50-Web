@@ -65,8 +65,9 @@ body {
 .logo-subtext {
     margin: -11px;
     position: relative;
+    text-align: center;
     top: 299px;
-    left: 620px;
+    left: 100px;
     color: royalblue;
 }
 
