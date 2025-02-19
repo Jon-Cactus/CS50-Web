@@ -10,7 +10,12 @@ from .models import User
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    listings = Listing.objects.all() # have all listings ready
+
+    return render(request, "auctions/index.html", {
+        "listings": listings.filter(active=True)
+    })
+    
 
 
 def login_view(request):
@@ -85,10 +90,15 @@ def new_listing(request):
         listing = Listing(**listing_data)
         listing.save()
 
-    
+    # When the page is loaded via get
     form = ListingForm()
     return render(request, "auctions/new-listing.html", {
         "categories": Listing.CATEGORY_CHOICES,
         "form": form,
         
     })
+
+def listing(request):
+    pass
+
+    # if request.GET.get('sort'):
