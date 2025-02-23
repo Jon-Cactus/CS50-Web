@@ -1,9 +1,9 @@
 {% extends "auctions/layout.html" %}
-{% block title %}Active Listings{% endblock %}
+{% block title %}{request.user.username}'s Watchlist{% endblock %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-    {% for listing in listings %}
+    <h2>Auctions you are watching</h2>
+    {% for listing in watchlist %}
         <div class="listing">
             <a href="{% url 'listing' listing_id=listing.id %}"><img class="active-listings" src="{{ listing.image_URL }}">
             <h3>{{ listing.title }}</h3></a>
@@ -13,6 +13,11 @@
                 <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
             {% endif %}
             <p>Created {{ listing.date }}</p>
+            <form action="{% url 'watchlist' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="listing" value="{{ listing.id }}">
+                <button class="btn btn-primary" type="submit">Remove</button>
+            </form>
         </div> 
     {% endfor %}
 {% endblock %}

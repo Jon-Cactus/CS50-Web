@@ -1,0 +1,31 @@
+{% extends "auctions/layout.html" %}
+{% block title %}{{ listing.title }}{% endblock %}
+<!--
+TODO:
+add comments
+add bid functionality
+-->
+{% block body %}
+    <h3>{{ listing.title }}</h3>
+    <p>Category: {{ listing.get_category_display }}</p>
+    <img class="active-listings" src="{{ listing.image_URL }}">
+    {% if listing.highest_bid %}
+        <h3><strong>Highest bid: </strong>${{ listing.highest_bid }}</h3>
+    {% else %}
+        <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
+    {% endif %}
+    <form action="{% url 'watchlist' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="listing" value="{{ listing.id }}">
+        <button class="btn btn-primary" type="submit">
+            {% if listing in watchlist %}
+                Remove from watchlist</button>
+            {% else %}
+                Add to watchlist</button>
+            {% endif %}
+    </form>
+    <h3>Details</h3>
+    <p>{{ listing.description }}</p>
+    <p>Listed by {{ listing.user }} on {{ listing.date }}</p>
+{% endblock %}
+        

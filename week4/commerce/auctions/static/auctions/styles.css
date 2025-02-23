@@ -1,3 +1,7 @@
 body {
     padding: 10px;
 }
+
+.active-listings {
+    max-height: 250px;
+}
