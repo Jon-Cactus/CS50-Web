@@ -7,7 +7,6 @@ from django.urls import reverse
 from .models import User, Listing, Bid, Comment 
 from .forms import ListingForm
 from django.shortcuts import redirect
-
 from .models import User
 
 
@@ -17,7 +16,6 @@ def index(request):
     return render(request, "auctions/index.html", {
         "listings": listings.filter(active=True)
     })
-    
 
 
 def login_view(request):
@@ -104,20 +102,27 @@ def new_listing(request):
     })
 
 def listing(request, listing_id):
-    user = request.user
     listing = Listing.objects.get(id=listing_id)
+    user = request.user
     watchlist = user.watchlist.all()
+
+    if request.method == "POST":
+        text = request.POST["comment"]
+        comment = Comment(user=user, listing=listing, text=text)
+        comment.save()
+    
+    comments = Comment.objects.filter(listing=listing).order_by('date')
 
     return render(request, "auctions/listing.html", {
         "listing": listing,
-        "watchlist": watchlist
+        "watchlist": watchlist,
+        "comments": comments
     })
 
 @login_required
 def watchlist(request):
     user = request.user
     watchlist = user.watchlist.all()
-    #listing = Listing.objects.get(id=listing_id)
 
     if request.method == "POST":
         listing_id = request.POST["listing"]
@@ -127,7 +132,7 @@ def watchlist(request):
         else:
             user.watchlist.add(listing)
 
-    watchlist = user.watchlist.all() #Load new watchlist so that changes are rendered        
+    watchlist = user.watchlist.all().order_by('date') #Load new watchlist so that changes are rendered        
     return render(request, "auctions/watchlist.html", {
         "user": user,
         "watchlist": watchlist

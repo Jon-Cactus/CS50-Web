@@ -27,5 +27,22 @@ add bid functionality
     <h3>Details</h3>
     <p>{{ listing.description }}</p>
     <p>Listed by {{ listing.user }} on {{ listing.date }}</p>
+    <div class="comment-section">
+        {% if request.user.is_authenticated %}
+            <label for="comment">Add a comment</label>
+            <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+                {% csrf_token %}
+                <textarea name="comment" id="comment" rows="5" cols="50" placeholder="Input text here"></textarea>
+                <button class="btn btn-primary" type="submit">Post comment</button>
+            </form>
+        {% endif %}
+        {% for comment in comments %}
+            <div class="comment">
+                <p><strong>{{ comment.user.username }}</strong></p>
+                <p>{{ comment.text }}</p>
+                <p class="date">{{ comment.date }}</p>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
         
