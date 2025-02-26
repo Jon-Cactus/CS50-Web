@@ -104,19 +104,42 @@ def new_listing(request):
 def listing(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
     user = request.user
-    watchlist = user.watchlist.all()
 
-    if request.method == "POST":
-        text = request.POST["comment"]
-        comment = Comment(user=user, listing=listing, text=text)
-        comment.save()
+    if request.method == "POST" and request.user.is_authenticated:
+        bid = int(request.POST.get("bid"))
+        text = request.POST.get("comment")
+
+        if bid: #currently not working correctly
+            highest_bid = listing.highest_bid or listing.starting_bid
+            if bid > highest_bid:
+                bid = Bid(bid=bid, user=user, listing=listing)
+                bid.save()
+                listing.highest_bid = bid
+                listing.save()
+            else: #case where user somehow input a bid lower than the highest bid
+                return render(request, "auctions/error.html", {
+                    "message": "Bid must be higher than the highest bid!"
+                })
+
+        elif text:
+            comment = Comment(user=user, listing=listing, text=text)
+            comment.save()
+        
+        else:
+            return render(request, "auctions/error.html", {
+                "message": "Login required"
+            })
     
     comments = Comment.objects.filter(listing=listing).order_by('date')
+    if request.user.is_authenticated:
+        watchlist = user.watchlist.all()
+    else:
+        watchlist = None
 
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "watchlist": watchlist,
-        "comments": comments
+        "comments": comments,
     })
 
 @login_required

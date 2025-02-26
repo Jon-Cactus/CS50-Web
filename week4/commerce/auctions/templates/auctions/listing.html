@@ -3,17 +3,10 @@
 <!--
 TODO:
 add comments
-add bid functionality
 -->
 {% block body %}
     <h3>{{ listing.title }}</h3>
     <p>Category: {{ listing.get_category_display }}</p>
-    <img class="active-listings" src="{{ listing.image_URL }}">
-    {% if listing.highest_bid %}
-        <h3><strong>Highest bid: </strong>${{ listing.highest_bid }}</h3>
-    {% else %}
-        <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
-    {% endif %}
     <form action="{% url 'watchlist' %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="listing" value="{{ listing.id }}">
@@ -24,9 +17,34 @@ add bid functionality
                 Add to watchlist</button>
             {% endif %}
     </form>
+    <img class="active-listings" src="{{ listing.image_URL }}">
+    {% if listing.highest_bid %}
+        <h3><strong>Highest bid: </strong>${{ listing.highest_bid.bid }}</h3>
+    {% else %}
+        <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
+    {% endif %}
+    {% if request.user.is_authenticated %}
+        <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="listing" value="{{ listing.id }}">
+            {% if listing.highest_bid %}
+                <input type="number" name="bid" min="{{ listing.highest_bid.bid|add:1 }}" value="{{ listing.highest_bid.bid|add:1 }}">
+            {% else %}
+                <input type="number" name="bid" min="{{ listing.starting_bid|add:1 }}" value="{{ listing.starting_bid.bid|add:1 }}">
+            {% endif %}
+
+                <button class="btn btn-primary" type="submit">Place bid</button>
+        </form>
+    {% else %}
+        <input type="text" disabled>
+        <button>Login to bid!</button>
+    {% endif %}
+        
+
     <h3>Details</h3>
     <p>{{ listing.description }}</p>
     <p>Listed by {{ listing.user }} on {{ listing.date }}</p>
+
     <div class="comment-section">
         {% if request.user.is_authenticated %}
             <label for="comment">Add a comment</label>
