@@ -8,7 +8,7 @@
             <a href="{% url 'listing' listing_id=listing.id %}"><img class="active-listings" src="{{ listing.image_URL }}">
             <h3>{{ listing.title }}</h3></a>
             {% if listing.highest_bid %}
-                <h3><strong>Highest bid: </strong>${{ listing.highest_bid }}</h3>
+                <h3><strong>Highest bid: </strong>${{ listing.highest_bid.bid }}</h3>
             {% else %}
                 <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
             {% endif %}

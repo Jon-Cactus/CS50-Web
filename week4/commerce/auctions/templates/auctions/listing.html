@@ -30,7 +30,7 @@ add comments
             {% if listing.highest_bid %}
                 <input type="number" name="bid" min="{{ listing.highest_bid.bid|add:1 }}" value="{{ listing.highest_bid.bid|add:1 }}">
             {% else %}
-                <input type="number" name="bid" min="{{ listing.starting_bid|add:1 }}" value="{{ listing.starting_bid.bid|add:1 }}">
+                <input type="number" name="bid" min="{{ listing.starting_bid }}" value="{{ listing.starting_bid.bid }}">
             {% endif %}
 
                 <button class="btn btn-primary" type="submit">Place bid</button>

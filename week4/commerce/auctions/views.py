@@ -109,9 +109,9 @@ def listing(request, listing_id):
         bid = int(request.POST.get("bid"))
         text = request.POST.get("comment")
 
-        if bid: #currently not working correctly
+        if bid:
             highest_bid = listing.highest_bid or listing.starting_bid
-            if bid > highest_bid:
+            if bid > highest_bid or bid == listing.starting_bid:
                 bid = Bid(bid=bid, user=user, listing=listing)
                 bid.save()
                 listing.highest_bid = bid
@@ -160,3 +160,6 @@ def watchlist(request):
         "user": user,
         "watchlist": watchlist
     })
+
+def error(request):
+    return render(request, "auctions/error.html")
