@@ -23,7 +23,8 @@ add comments
     {% else %}
         <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
     {% endif %}
-    {% if request.user.is_authenticated %}
+    <!--Display bid form if the user is logged in and is not the lister-->
+    {% if request.user.is_authenticated and request.user != listing.user %}
         <form action="{% url 'listing' listing_id=listing.id %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="listing" value="{{ listing.id }}">
@@ -32,10 +33,17 @@ add comments
             {% else %}
                 <input type="number" name="bid" min="{{ listing.starting_bid }}" value="{{ listing.starting_bid.bid }}">
             {% endif %}
-
                 <button class="btn btn-primary" type="submit">Place bid</button>
         </form>
-    {% else %}
+    {% elif request.user == listing.user %} <!--If the user listed-->
+        <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="end_auction" value="{{ listing.id }}">
+            <button class="btn btn-primary" type="submit">End auction</button>
+        </form>
+    {% elif listing.active == False %} <!--If listing is closed-->
+        <TODO
+    {% else %} <!--If the user is not logged in-->
         <input type="text" disabled>
         <button>Login to bid!</button>
     {% endif %}

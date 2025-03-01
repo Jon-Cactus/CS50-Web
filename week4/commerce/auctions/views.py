@@ -108,6 +108,7 @@ def listing(request, listing_id):
     if request.method == "POST" and request.user.is_authenticated:
         bid = int(request.POST.get("bid"))
         text = request.POST.get("comment")
+        end_auction = request.POST.get("end_auction")
 
         if bid:
             highest_bid = listing.highest_bid or listing.starting_bid
@@ -124,6 +125,10 @@ def listing(request, listing_id):
         elif text:
             comment = Comment(user=user, listing=listing, text=text)
             comment.save()
+
+        elif end_auction:
+            listing.active = False
+            listing.winner = listing.highest_bid.user
         
         else:
             return render(request, "auctions/error.html", {
