@@ -17,6 +17,20 @@ def index(request):
         "listings": listings.filter(active=True)
     })
 
+def categories(request, category=None):
+    #Not working properly
+    if category:
+
+        listings = Listing.objects.filter(category=category)
+
+        return render(request, "auctions/categories.html", {
+            "listings": listings
+        })
+    else:
+        categories = Listing.CATEGORY_CHOICES
+        return render(request, "auctions/categories.html", {
+            "categories": categories
+        })
 
 def login_view(request):
     if request.method == "POST":
@@ -106,13 +120,14 @@ def listing(request, listing_id):
     user = request.user
 
     if request.method == "POST" and request.user.is_authenticated:
-        bid = int(request.POST.get("bid"))
+        bid = request.POST.get("bid")
         text = request.POST.get("comment")
         end_auction = request.POST.get("end_auction")
 
         if bid:
-            highest_bid = listing.highest_bid or listing.starting_bid
-            if bid > highest_bid or bid == listing.starting_bid:
+            #Check if a highest bid exists
+            highest_bid = listing.highest_bid.bid if listing.highest_bid else listing.starting_bid
+            if int(bid) >= highest_bid:
                 bid = Bid(bid=bid, user=user, listing=listing)
                 bid.save()
                 listing.highest_bid = bid
@@ -129,6 +144,7 @@ def listing(request, listing_id):
         elif end_auction:
             listing.active = False
             listing.winner = listing.highest_bid.user
+            listing.save()
         
         else:
             return render(request, "auctions/error.html", {

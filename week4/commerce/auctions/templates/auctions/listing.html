@@ -1,22 +1,8 @@
 {% extends "auctions/layout.html" %}
 {% block title %}{{ listing.title }}{% endblock %}
-<!--
-TODO:
-add comments
--->
 {% block body %}
     <h3>{{ listing.title }}</h3>
     <p>Category: {{ listing.get_category_display }}</p>
-    <form action="{% url 'watchlist' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="listing" value="{{ listing.id }}">
-        <button class="btn btn-primary" type="submit">
-            {% if listing in watchlist %}
-                Remove from watchlist</button>
-            {% else %}
-                Add to watchlist</button>
-            {% endif %}
-    </form>
     <img class="active-listings" src="{{ listing.image_URL }}">
     {% if listing.highest_bid %}
         <h3><strong>Highest bid: </strong>${{ listing.highest_bid.bid }}</h3>
@@ -24,30 +10,51 @@ add comments
         <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
     {% endif %}
     <!--Display bid form if the user is logged in and is not the lister-->
-    {% if request.user.is_authenticated and request.user != listing.user %}
-        <form action="{% url 'listing' listing_id=listing.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="listing" value="{{ listing.id }}">
-            {% if listing.highest_bid %}
-                <input type="number" name="bid" min="{{ listing.highest_bid.bid|add:1 }}" value="{{ listing.highest_bid.bid|add:1 }}">
-            {% else %}
-                <input type="number" name="bid" min="{{ listing.starting_bid }}" value="{{ listing.starting_bid.bid }}">
+    {% if request.user.is_authenticated %}
+        {% if listing.active == True %}
+            {% if request.user != listing.user %}
+                <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="listing" value="{{ listing.id }}">
+                    {% if listing.highest_bid %}
+                        <input type="number" name="bid" min="{{ listing.highest_bid.bid|add:1 }}" value="{{ listing.highest_bid.bid|add:1 }}">
+                    {% else %}
+                        <input type="number" name="bid" min="{{ listing.starting_bid }}" value="{{ listing.starting_bid.bid }}">
+                    {% endif %}
+                        <button class="btn btn-primary" type="submit">Place bid</button>
+                </form>
+                <form action="{% url 'watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="listing" value="{{ listing.id }}">
+                    <button class="btn btn-primary" type="submit">
+                        {% if listing in watchlist %}
+                            Remove from watchlist</button>
+                        {% else %}
+                            Add to watchlist</button>
+                        {% endif %}
+                </form>
+            {% elif request.user == listing.user %} <!--If the user listed-->
+                <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="end_auction" value="{{ listing.id }}">
+                    <button class="btn btn-primary" type="submit">End auction</button>
+                </form>
             {% endif %}
-                <button class="btn btn-primary" type="submit">Place bid</button>
-        </form>
-    {% elif request.user == listing.user %} <!--If the user listed-->
-        <form action="{% url 'listing' listing_id=listing.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="end_auction" value="{{ listing.id }}">
-            <button class="btn btn-primary" type="submit">End auction</button>
-        </form>
-    {% elif listing.active == False %} <!--If listing is closed-->
-        <TODO
-    {% else %} <!--If the user is not logged in-->
-        <input type="text" disabled>
-        <button>Login to bid!</button>
-    {% endif %}
-        
+        {% elif listing.active == False %} <!--If listing is closed-->
+            {% if request.user == listing.winner %}
+                <div class="winner-message">
+                    <p>Congratulations {{ request.user.username }}, you won this auction!</p>
+                </div>
+            {% else %}
+                <div class="error">
+                    <p>Sorry, this auction has closed...</p>
+                </div>
+            {% endif %}
+        {% else %} <!--If the user is not logged in-->
+            <input type="text" disabled>
+            <button>Login to bid!</button>
+        {% endif %}
+    {%endif %}
 
     <h3>Details</h3>
     <p>{{ listing.description }}</p>
