@@ -41,7 +41,7 @@
                 </form>
             {% endif %}
         {% elif listing.active == False %} <!--If listing is closed-->
-            {% if request.user == listing.winner %}
+            {% if request.user == listing.winner %} <!--If user has won the auction-->
                 <div class="winner-message">
                     <p>Congratulations {{ request.user.username }}, you won this auction!</p>
                 </div>

@@ -18,9 +18,8 @@ def index(request):
     })
 
 def categories(request, category=None):
-    #Not working properly
-    if category:
 
+    if category:
         listings = Listing.objects.filter(category=category)
 
         return render(request, "auctions/categories.html", {
@@ -156,6 +155,8 @@ def listing(request, listing_id):
         watchlist = user.watchlist.all()
     else:
         watchlist = None
+
+    listing = Listing.objects.get(id=listing_id)
 
     return render(request, "auctions/listing.html", {
         "listing": listing,
