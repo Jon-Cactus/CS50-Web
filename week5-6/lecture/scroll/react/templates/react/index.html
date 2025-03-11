@@ -8,6 +8,15 @@
             .incorrect {
                 color: red;
             }
+
+            #app {
+                text-align: center;
+                font-family: sans-serif;
+            }
+
+            #problem {
+                font-size: 72px;
+            }
         </style>
         <title>React</title>
     </head>
@@ -27,18 +36,19 @@
                 function inputKeyPress(event) {
                     if (event.key === "Enter") {
                         const answer = parseInt(state.response);
-                        if (state.num1 + state.num2 === answer) {
+                        if (answer === state.num1 + state.num2) {
                             setState({
                                 ...state,
-                                num1: Math.ceil(Math.random() * 10),
-                                num2: Math.ceil(Math.random() * 10),
                                 score: state.score + 1,
                                 response: "",
-
+                                num1: Math.ceil(Math.random() * 10),
+                                num2: Math.ceil(Math.random() * 10),
+                                incorrect: false
                             })
                         } else {
                             setState({
                                 ...state,
+                                response: "",
                                 score: state.score - 1,
                                 incorrect: true
                             })
@@ -53,13 +63,19 @@
                     });
                 }
 
-                return (
-                    <div>
-                        <div className={state.incorrect ? "incorrect" : ""}>{state.num1} + {state.num2}</div>
-                        <input autoFocus={true} inKeyPress={inputKeyPress} onChange={updateResponse} value={state.response} />
-                        <div>Score: {state.score}</div>
-                    </div>
-                );
+                if (state.score === 10) {
+                    return (
+                        <div id="winner">You won!</div>
+                    )
+                } else {
+                    return (
+                        <div>
+                            <div id="problem" className={state.incorrect ? "incorrect" : ""}>{state.num1} + {state.num2}</div>
+                            <input autoFocus={true} onKeyPress={inputKeyPress} onChange={updateResponse} value={state.response} />
+                            <div>Score: {state.score}</div>
+                        </div>
+                    );
+                }
             }
 
             ReactDOM.render(<App />, document.querySelector("#app"));
