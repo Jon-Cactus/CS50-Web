@@ -1,7 +1,61 @@
+* {
+    box-sizing: border-box;
+    margin: 0px;
+}
+
 body {
+    background-color: rgb(30, 30, 30);
+    color: whitesmoke;
+}
+
+.header {
+    padding: 5px;
+}
+
+.card {
+    max-width: 350px;
+}
+
+.listing {
+    background-color: rgb(24, 24, 24);
+    border-radius: 7px;
     padding: 10px;
 }
 
-.active-listings {
+.listing-preview { 
+    max-width: 300px;
+    margin-left: 15px;
+    padding: 10px;
+    display: inline-block;
+    text-align: center;
+    background-color: rgb(24, 24, 24);
+    border-radius: 7px;
+
+}
+
+.listing-img {
     max-height: 250px;
+    border-radius: 7px;
+}
+
+.description-border {
+    border-top: 2px solid rgb(30, 30, 30);
+    margin-top: 10px;
+}
+
+.comment-section {
+    margin-left: 10px;
+}
+
+.comment {
+    background-color: rgb(30, 30, 30);
+    display: block;
+    max-width: 500px;
+    margin-bottom: 15px;
+    padding: 2px 10px;
+    border-radius: 7px;
+}
+
+.date-txt {
+    font-size: 0.75rem;
 }

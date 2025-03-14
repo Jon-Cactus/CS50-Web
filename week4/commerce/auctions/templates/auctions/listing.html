@@ -1,38 +1,44 @@
 {% extends "auctions/layout.html" %}
 {% block title %}{{ listing.title }}{% endblock %}
 {% block body %}
-    <h3>{{ listing.title }}</h3>
-    <p>Category: {{ listing.get_category_display }}</p>
-    <img class="active-listings" src="{{ listing.image_URL }}">
-    {% if listing.highest_bid %}
-        <h3><strong>Highest bid: </strong>${{ listing.highest_bid.bid }}</h3>
-    {% else %}
-        <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
-    {% endif %}
-    <!--Display bid form if the user is logged in and is not the lister-->
-    {% if request.user.is_authenticated %}
+    <div class="listing">
+        <h3>{{ listing.title }}</h3>
+        <p>Category: {{ listing.get_category_display }}</p>
+        <img class="listing-img" src="{{ listing.image_URL }}">
+        {% if listing.highest_bid %}
+            <h3><strong>Highest bid: </strong>${{ listing.highest_bid.bid }}</h3>
+        {% else %}
+            <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
+        {% endif %}
+        <!--Display bid form if the user is logged in and is not the lister-->
         {% if listing.active == True %}
             {% if request.user != listing.user %}
-                <form action="{% url 'listing' listing_id=listing.id %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="listing" value="{{ listing.id }}">
-                    {% if listing.highest_bid %}
-                        <input type="number" name="bid" min="{{ listing.highest_bid.bid|add:1 }}" value="{{ listing.highest_bid.bid|add:1 }}">
-                    {% else %}
-                        <input type="number" name="bid" min="{{ listing.starting_bid }}" value="{{ listing.starting_bid.bid }}">
-                    {% endif %}
-                        <button class="btn btn-primary" type="submit">Place bid</button>
-                </form>
-                <form action="{% url 'watchlist' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="listing" value="{{ listing.id }}">
-                    <button class="btn btn-primary" type="submit">
+                {% if request.user.is_authenticated %} <!--Bid form-->
+                    <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="listing" value="{{ listing.id }}">
+                        {% if listing.highest_bid %}
+                            <input type="number" name="bid" min="{{ listing.highest_bid.bid|add:1 }}" value="{{ listing.highest_bid.bid|add:1 }}">
+                        {% else %}
+                            <input type="number" name="bid" min="{{ listing.starting_bid }}" value="{{ listing.starting_bid.bid }}">
+                        {% endif %}
+                            <button class="btn btn-primary" type="submit">Place bid</button>
+                    </form>
+                    <form action="{% url 'watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="listing" value="{{ listing.id }}">
+                        <button class="btn btn-primary" type="submit">
                         {% if listing in watchlist %}
                             Remove from watchlist</button>
                         {% else %}
                             Add to watchlist</button>
                         {% endif %}
-                </form>
+                    </form>
+                {% else %} <!--If the user is not logged in-->
+                    <input type="text" disabled>
+                    <button>Login to bid!</button>
+                {% endif %}
+                
             {% elif request.user == listing.user %} <!--If the user listed-->
                 <form action="{% url 'listing' listing_id=listing.id %}" method="post">
                     {% csrf_token %}
@@ -50,32 +56,31 @@
                     <p>Sorry, this auction has closed...</p>
                 </div>
             {% endif %}
-        {% else %} <!--If the user is not logged in-->
-            <input type="text" disabled>
-            <button>Login to bid!</button>
         {% endif %}
-    {%endif %}
+    
+        <h3 class="description-border">Details</h3>
+        <p>{{ listing.description }}</p>
+        <p class="date-txt">Listed by {{ listing.user }} on {{ listing.date }}</p>
 
-    <h3>Details</h3>
-    <p>{{ listing.description }}</p>
-    <p>Listed by {{ listing.user }} on {{ listing.date }}</p>
-
-    <div class="comment-section">
-        {% if request.user.is_authenticated %}
-            <label for="comment">Add a comment</label>
-            <form action="{% url 'listing' listing_id=listing.id %}" method="post">
-                {% csrf_token %}
-                <textarea name="comment" id="comment" rows="5" cols="50" placeholder="Input text here"></textarea>
-                <button class="btn btn-primary" type="submit">Post comment</button>
-            </form>
-        {% endif %}
-        {% for comment in comments %}
-            <div class="comment">
-                <p><strong>{{ comment.user.username }}</strong></p>
-                <p>{{ comment.text }}</p>
-                <p class="date">{{ comment.date }}</p>
-            </div>
-        {% endfor %}
+        <div class="comment-section">
+            {% if request.user.is_authenticated %}
+                <label for="comment">Add a comment</label>
+                <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+                    {% csrf_token %}
+                    <textarea name="comment" id="comment" rows="5" cols="50" placeholder="Input text here"></textarea>
+                    <button class="btn btn-primary" type="submit">Post comment</button>
+                </form>
+            {% else %}
+                <textarea disabled rows="5" cols="50" placeholder="Log in to leave a comment!"></textarea>
+            {% endif %}
+            {% for comment in comments %}
+                <div class="comment">
+                    <p><strong>{{ comment.user.username }}</strong></p>
+                    <p>{{ comment.text }}</p>
+                    <p class="date-txt">{{ comment.date }}</p>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
         

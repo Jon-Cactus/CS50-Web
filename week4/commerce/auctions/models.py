@@ -6,8 +6,8 @@ class User(AbstractUser):
 
 class Listing(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="listings_created")
-    title = models.CharField(max_length=64)
-    description = models.CharField(max_length=256)
+    title = models.CharField(blank=False, null=False, max_length=64)
+    description = models.CharField(blank=False, null=False, max_length=256)
     date = models.DateField(auto_now_add=True)
     CATEGORY_CHOICES = (
         ("msc", "Misc"),
@@ -18,9 +18,9 @@ class Listing(models.Model):
         ("spt", "Sports"),
         ("toy", "Toys"),
     )
-    category = models.CharField(max_length=3, choices=CATEGORY_CHOICES, default='msc')
-    image_URL = models.URLField(null=True, blank=True)
-    starting_bid = models.IntegerField(blank=True, null=True)
+    category = models.CharField(blank=False, null=False, max_length=3, choices=CATEGORY_CHOICES, default='msc')
+    image_URL = models.URLField(blank=True, null=True)
+    starting_bid = models.IntegerField(blank=False, null=False)
     active = models.BooleanField(default=True)
     winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="won_auctions")
     highest_bid = models.ForeignKey('Bid', null=True, blank=True, on_delete=models.CASCADE, related_name="current_highest_bids")

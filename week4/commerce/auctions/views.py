@@ -85,27 +85,18 @@ def register(request):
 @login_required    
 def new_listing(request):
     if request.method == "POST": #When the user submits the new_listing form
-        user = request.user
-        title = request.POST["title"]
-        description = request.POST["description"]
-        category = request.POST["category"]
-        image_URL = request.POST["image_URL"]
-        starting_bid = request.POST["starting_bid"]
-        listing_data = {
-            "user": user,
-            "title": title,
-            "description": description,
-            "category": category,
-            "starting_bid": starting_bid
-        }
-        if image_URL: #Handle case where image_URL is provided
-            listing_data["image_URL"] = image_URL
+        form = ListingForm(request.POST)
+        if form.is_valid(): #Check if the form has been entirely filled out
+           form.save()
+           return redirect("listing", form.instance.id) #Take user to new listing
+           
+        else:
+            print(form.errors)
+            return render(request, "auctions/new-listing.html", {
+                "form": form
+            })
+
         
-        listing = Listing(**listing_data)
-        listing.save()
-
-        return redirect("listing", listing.id) #Take user to new listing
-
     #When the page is loaded via get
     form = ListingForm()
     return render(request, "auctions/new-listing.html", {

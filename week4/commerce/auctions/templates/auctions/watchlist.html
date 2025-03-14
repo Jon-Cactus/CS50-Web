@@ -2,22 +2,26 @@
 {% block title %}{{ request.user.username }}'s Watchlist{% endblock %}
 
 {% block body %}
-    <h2>Auctions you are watching</h2>
-    {% for listing in watchlist %}
-        <div class="listing">
-            <a href="{% url 'listing' listing_id=listing.id %}"><img class="active-listings" src="{{ listing.image_URL }}">
-            <h3>{{ listing.title }}</h3></a>
-            {% if listing.highest_bid %}
-                <h3><strong>Highest bid: </strong>${{ listing.highest_bid }}</h3>
-            {% else %}
-                <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
+    <div class="listing">
+        <h2>Auctions you are watching</h2>
+        {% for listing in watchlist %}
+            {% if listing.active == True %}
+                <div>
+                    <a href="{% url 'listing' listing_id=listing.id %}"><img class="listing-img" src="{{ listing.image_URL }}">
+                    <h3>{{ listing.title }}</h3></a>
+                    {% if listing.highest_bid %}
+                        <h3><strong>Highest bid: </strong>${{ listing.highest_bid.bid }}</h3>
+                    {% else %}
+                        <h3><strong>Starting bid: </strong>${{ listing.starting_bid }}</h3>
+                    {% endif %}
+                    <p>Created {{ listing.date }}</p>
+                    <form action="{% url 'watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="listing" value="{{ listing.id }}">
+                        <button class="btn btn-primary" type="submit">Remove</button>
+                    </form>
+                </div>
             {% endif %}
-            <p>Created {{ listing.date }}</p>
-            <form action="{% url 'watchlist' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="listing" value="{{ listing.id }}">
-                <button class="btn btn-primary" type="submit">Remove</button>
-            </form>
-        </div> 
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}

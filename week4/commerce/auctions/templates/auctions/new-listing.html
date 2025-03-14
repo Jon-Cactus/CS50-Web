@@ -2,10 +2,11 @@
 {% block title %}Create New Listing{% endblock %}
 
 {% block body %}
-    <!--Change this into a django model-->
-    <form action="{% url 'new_listing' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Post Listing">
-    </form>
+    <div class="listing card">
+        <form action="{% url 'new_listing' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Post Listing">
+        </form>
+    </div>
 {% endblock %}
