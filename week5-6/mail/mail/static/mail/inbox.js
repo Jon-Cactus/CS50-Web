@@ -3,26 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => {
     load_mailbox('inbox');
-    const userEmail = document.querySelector('#user-email').innerHTML;
-    console.log(userEmail);
-    // Should probably turn this into its own function and have the desired mailbox to be loaded passed in
-    // as an argument
-    fetch('/emails/inbox')
-    .then(response => response.json())
-    .then(emails => {
-      console.log(emails);
-      emails.forEach(email => {
-        if (email.recipients.includes(userEmail)) {
-          console.log("got one")
-        }
-      })
-    })
+    load_mail('inbox');
+
+    
   });
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
   // Send Mail
-  document.querySelector('#compose-form').onsubmit = send_mail(); 
+  document.querySelector('#compose-form').onsubmit = send_mail; 
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -39,6 +28,41 @@ function compose_email() {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 }
+
+// Loads mail in the appropriate mailbox
+const load_mail = (mailType) => {
+  
+  const inbox = document.getElementById('emails-view');
+  fetch(`/emails/${mailType}`)
+  .then(response => response.json())
+  .then(emails => {
+    emails.forEach(email => {
+      const emailDiv = document.createElement('div');
+      // TODO: clean this up
+      emailDiv.innerHTML = `
+      <span><strong>${email.sender}</strong></span>
+      <span>${email.subject}</span>
+      <span>${email.timestamp}</span>
+      `;
+      emailDiv.classList.add('email-preview');
+      emailDiv.dataset.id = email.id;
+      inbox.append(emailDiv);
+    })
+  })
+
+  inbox.addEventListener('click', (event) => { // event listener for each email
+    fetch(`/emails/${event.target.closest('.email-preview').dataset.id}`) // find id value of clicked email
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      // TODO: render mail here
+    })
+    
+  });
+}
+
+
+
 
 const send_mail = () => {
 
