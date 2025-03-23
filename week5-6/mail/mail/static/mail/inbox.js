@@ -14,13 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Send Mail
   document.querySelector('#compose-form').onsubmit = sendMail; 
 
-  // Add event listener to the parent element of the email previews that listens for clicks
-  const emailsView = document.getElementById('emails-view');
-  emailsView.addEventListener('click', (event) => {
-    const emailId = event.target.closest('.email-preview').dataset.id; // find id value of clicked email
-    viewEmail(emailId);
-  });
-
   // By default, load the inbox
   loadMailbox('inbox');
 });
@@ -40,10 +33,9 @@ function composeEmail() {
 
 // Loads mail in the appropriate mailbox
 const loadMail = (mailType) => {
+  
   const emailsView = document.getElementById('emails-view');
   emailsView.innerHTML = '';
-
-
   fetch(`/emails/${mailType}`)
   .then(response => response.json())
   .then(emails => {
@@ -66,56 +58,56 @@ const loadMail = (mailType) => {
     })
     .catch(error => console.log('Error', error));
   })
-}
 
-const viewEmail = (emailId) => {
-  fetch(`/emails/${emailId}`) 
-.then(response => response.json())
-.then(email => {
+  // Add event listener to the parent element of the email previews that listens for clicks
+  emailsView.addEventListener('click', (event) => {
+    const emailId = event.target.closest('.email-preview').dataset.id; // find id value of clicked email
+    fetch(`/emails/${emailId}`) 
+    .then(response => response.json())
+    .then(email => {
 
-  // Render mail
-  const emailView = document.getElementById('email-view');
-  emailView.style.display = 'block';
-  document.getElementById('emails-view').style.display = 'none';
-  emailView.innerHTML = ''; // Clear any previously loaded emails
-
-  const emailDiv = document.createElement('div');
-  emailDiv.innerHTML = `
-    <p><strong>From: </strong>${email.sender}</p>
-    <p><strong>To: </strong>${email.recipients}</p>
-    <p><strong>Subject: </strong>${email.subject}</p>
-    <p><strong>Timestamp: </strong>${email.timestamp}</p>
-    <hr></hr>
-    <p>${email.body}</p>
-  `;
-  // Add proper buttons and event listeners to update the email's status
-  if (!email.read) {
-    emailDiv.innerHTML += `
-    <div>
-      <button class="btn btn-sm btn-outline-primary" id="unread">Mark as unread</button>
-      <button class="btn btn-sm btn-outline-primary" id="archive">Archive</button>
-    </div>
-    `
-    document.getElementById('unread').addEventListener('click', () => {
-      updateMailStatus(emailId, "read", false);
-    });
-    document.getElementById('archive').addEventListener('click', () => {
-      updateMailStatus(emailId, "archived", true);
-      loadMailbox('inbox');
-    });
+      // Render mail
+      const emailView = document.getElementById('email-view')
+      const emailDiv = document.createElement('div');
+      emailView.style.display = 'block';
+      emailsView.style.display = 'none';
+      emailView.innerHTML = ''; // Clear any previously loaded emails
+      emailDiv.innerHTML = `
+        <p><strong>From: </strong>${email.sender}</p>
+        <p><strong>To: </strong>${email.recipients}</p>
+        <p><strong>Subject: </strong>${email.subject}</p>
+        <p><strong>Timestamp: </strong>${email.timestamp}</p>
+        <hr></hr>
+        <p>${email.body}</p>
+      `;
+      // Add proper buttons and event listeners to update the email's status
+      if (mailType === 'inbox') {
+        emailDiv.innerHTML += `
+        <div>
+          <button class="btn btn-sm btn-outline-primary" id="unread">Mark as unread</button>
+          <button class="btn btn-sm btn-outline-primary" id="archive">Archive</button>
+        </div>
+        `
+        emailView.append(emailDiv);
+        document.getElementById('unread').addEventListener('click', () => {
+          updateMailStatus(emailId, "read", false);
+        });
+        document.getElementById('archive').addEventListener('click', () => {
+          updateMailStatus(emailId, "archived", true);
+          loadMailbox('inbox');
+        });
+      } else if (mailType === 'archive') {
+          emailDiv.innerHTML += '<button class="btn btn-sm btn-outline-primary" id="unarchive">Unarchive</button>'
+          emailView.append(emailDiv);
+          document.getElementById('unarchive').addEventListener('click', () => {
+          updateMailStatus(emailId, "archived", false);
+          loadMailbox('inbox');
+        });
+      }
+    })
+    .catch(error => console.log('Error', error));
     updateMailStatus(emailId, "read", true); // Change mail to read
-  }
-  
-  if (email.archived) {
-    emailDiv.innerHTML += '<button class="btn btn-sm btn-outline-primary" id="unarchive">Unarchive</button>'
-    document.getElementById('unarchive').addEventListener('click', () => {
-      updateMailStatus(emailId, "archived", false);
-      loadMailbox('inbox');
-    });
-  }
-  emailView.append(emailDiv); // Add div containing email content to the emailView div
-})
-.catch(error => console.log('Error', error));
+  });
 }
 
 const updateMailStatus = (id, category, value) => {
