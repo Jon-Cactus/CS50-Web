@@ -2,25 +2,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => {
-    load_mailbox('inbox');
-    load_mail('inbox');
-
-    
+    loadMailbox('inbox');
   });
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#sent').addEventListener('click', () => {
+    loadMailbox('sent');
+  });
+  document.querySelector('#archived').addEventListener('click', () => {
+    loadMailbox('archive');
+  });
+  document.querySelector('#compose').addEventListener('click', composeEmail);
   // Send Mail
-  document.querySelector('#compose-form').onsubmit = send_mail; 
+  document.querySelector('#compose-form').onsubmit = sendMail; 
+
+  // Add event listener to the parent element of the email previews that listens for clicks
+  const emailsView = document.getElementById('emails-view');
+  emailsView.addEventListener('click', (event) => {
+    const emailId = event.target.closest('.email-preview').dataset.id; // find id value of clicked email
+    viewEmail(emailId);
+  });
 
   // By default, load the inbox
-  load_mailbox('inbox');
+  loadMailbox('inbox');
 });
 
-function compose_email() {
+function composeEmail() {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -30,41 +39,100 @@ function compose_email() {
 }
 
 // Loads mail in the appropriate mailbox
-const load_mail = (mailType) => {
-  
-  const inbox = document.getElementById('emails-view');
+const loadMail = (mailType) => {
+  const emailsView = document.getElementById('emails-view');
+  emailsView.innerHTML = '';
+
+
   fetch(`/emails/${mailType}`)
   .then(response => response.json())
   .then(emails => {
     emails.forEach(email => {
-      const emailDiv = document.createElement('div');
-      // TODO: clean this up
-      emailDiv.innerHTML = `
+      const emailPreviewDiv = document.createElement('div');
+      // TODO: depending on the mail's status, change which class is added
+      emailPreviewDiv.innerHTML = `
       <span><strong>${email.sender}</strong></span>
       <span>${email.subject}</span>
       <span>${email.timestamp}</span>
       `;
-      emailDiv.classList.add('email-preview');
-      emailDiv.dataset.id = email.id;
-      inbox.append(emailDiv);
-    })
-  })
 
-  inbox.addEventListener('click', (event) => { // event listener for each email
-    fetch(`/emails/${event.target.closest('.email-preview').dataset.id}`) // find id value of clicked email
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      // TODO: render mail here
+      // Add 'read' class if the email in the inbox and has been opened
+      if (mailType === 'inbox' && email.read === true) {
+        emailPreviewDiv.classList.add('read');
+      }
+      emailPreviewDiv.classList.add('email-preview');
+      emailPreviewDiv.dataset.id = email.id; // set id in the element's dataset
+      emailsView.append(emailPreviewDiv);
     })
-    
-  });
+    .catch(error => console.log('Error', error));
+  })
 }
 
+const viewEmail = (emailId) => {
+  fetch(`/emails/${emailId}`) 
+.then(response => response.json())
+.then(email => {
 
+  // Render mail
+  const emailView = document.getElementById('email-view');
+  emailView.style.display = 'block';
+  document.getElementById('emails-view').style.display = 'none';
+  emailView.innerHTML = ''; // Clear any previously loaded emails
 
+  const emailDiv = document.createElement('div');
+  emailDiv.innerHTML = `
+    <p><strong>From: </strong>${email.sender}</p>
+    <p><strong>To: </strong>${email.recipients}</p>
+    <p><strong>Subject: </strong>${email.subject}</p>
+    <p><strong>Timestamp: </strong>${email.timestamp}</p>
+    <hr></hr>
+    <p>${email.body}</p>
+  `;
+  // Add proper buttons and event listeners to update the email's status
+  if (!email.read) {
+    emailDiv.innerHTML += `
+    <div>
+      <button class="btn btn-sm btn-outline-primary" id="unread">Mark as unread</button>
+      <button class="btn btn-sm btn-outline-primary" id="archive">Archive</button>
+    </div>
+    `
+    document.getElementById('unread').addEventListener('click', () => {
+      updateMailStatus(emailId, "read", false);
+    });
+    document.getElementById('archive').addEventListener('click', () => {
+      updateMailStatus(emailId, "archived", true);
+      loadMailbox('inbox');
+    });
+    updateMailStatus(emailId, "read", true); // Change mail to read
+  }
+  
+  if (email.archived) {
+    emailDiv.innerHTML += '<button class="btn btn-sm btn-outline-primary" id="unarchive">Unarchive</button>'
+    document.getElementById('unarchive').addEventListener('click', () => {
+      updateMailStatus(emailId, "archived", false);
+      loadMailbox('inbox');
+    });
+  }
+  emailView.append(emailDiv); // Add div containing email content to the emailView div
+})
+.catch(error => console.log('Error', error));
+}
 
-const send_mail = () => {
+const updateMailStatus = (id, category, value) => {
+
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      [category]: value
+    })
+  })
+  .then(() => {
+    loadMailbox('inbox');
+  })
+  .catch(error => console.log('Error', error));
+}
+
+const sendMail = () => {
 
   fetch('/emails', {
     method: 'POST',
@@ -77,7 +145,7 @@ const send_mail = () => {
   .then(response => response.json())
   .then(result => {
     console.log(result)
-    load_mailbox('sent');
+    loadMailbox('sent');
   })
   .catch(error => {
     console.log('Error:', error);
@@ -87,11 +155,15 @@ const send_mail = () => {
   return false;
 }
 
-function load_mailbox(mailbox) {
+function loadMailbox(mailbox) {
   
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
+
+  // Load all mail in a given mailbox
+  loadMail(mailbox);
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;

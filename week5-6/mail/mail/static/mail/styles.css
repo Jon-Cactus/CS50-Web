@@ -4,4 +4,12 @@ textarea {
 
 .email-preview {
     border: 1px solid black;
+    
+}
+.email-preview:hover {
+    cursor: pointer;
+}
+
+.read {
+    background-color: grey;
 }
