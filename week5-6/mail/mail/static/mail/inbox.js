@@ -3,12 +3,37 @@ document.addEventListener('DOMContentLoaded', function() {
   const composeView = document.getElementById('compose-view');
   const emailsView = document.getElementById('emails-view');
 
+  // Noticed repeated code for toggling different views
+  const toggleViews = (mailbox) => {
+    emailsView.style.display = mailbox === 'emails' ? 'block' : 'none';
+    emailView.style.display = mailbox === 'email' ? 'block' : 'none';
+    composeView.style.display = mailbox === 'compose' ? 'block' : 'none';
+  }
+
+  function loadMailbox(mailbox) {
+    // Show the mailbox and hide other views
+    toggleViews('emails');
+    // Show the mailbox name
+    emailsView.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+    emailsView.dataset.mailbox = mailbox; // This was the only way I could properly add the correct eventlistener
+    // Load all mail in a given mailbox
+    loadMail(mailbox, emailsView);
+  }
+
+  function composeEmail() {
+    // Show compose view and hide other views
+    toggleViews('compose');
+    // Clear out composition fields
+    document.querySelector('#compose-recipients').value = '';
+    document.querySelector('#compose-subject').value = '';
+    document.querySelector('#compose-body').value = '';
+  }
 
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => loadMailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => loadMailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => loadMailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', composeEmail);
+  document.querySelector('#compose').addEventListener('click', () => composeEmail());
   document.querySelector('#compose-form').onsubmit = sendMail; // Send Mail
 
   // Add event listener for email clicks once
@@ -21,9 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
           .then(response => response.json())
           .then(email => {
             // Render email
-            emailView.style.display = 'block';
-            emailsView.style.display = 'none';
-            composeView.style.display = 'none';
+            toggleViews('email');
             emailView.innerHTML = '';
             const emailDiv = document.createElement('div');
             emailDiv.innerHTML = `
@@ -52,37 +75,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateMailStatus(emailId, "read", false);
               });
               document.getElementById('archive').addEventListener('click', () => {
-                updateMailStatus(emailId, "archived", true)
-                  .then(() => loadMailbox('inbox'));
+                updateMailStatus(emailId, "archived", true).then(() => loadMailbox('inbox'));
+                  // I learned my lesson after trying to get away with calling a function that includes
+                  // a fetch call and then calling a function directly after it without
+                  // chaining it with `.then(...)`. The second function may be called before the 
+                  // fetch call completes, creating a race condition (thanks ddb).
               });
             } else if (mailbox === 'archive') {
               document.getElementById('unarchive').addEventListener('click', () => {
-                updateMailStatus(emailId, "archived", false)
-                  .then(() => loadMailbox('inbox'));
+                updateMailStatus(emailId, "archived", false).then(() => loadMailbox('inbox'));
               });
             }
           })
           .catch(error => console.log('Error', error));
-        if (mailbox === 'inbox') {
-          updateMailStatus(emailId, "read", true); // Mark as read only for inbox
-        }
+        if (mailbox === 'inbox') updateMailStatus(emailId, "read", true); // Mark as read only for inbox
       }
     });
     loadMailbox('inbox');
   });
-
-function composeEmail() {
-
-  // Show compose view and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#email-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'block';
-
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
-}
 
 // Loads mail in the appropriate mailbox
 const loadMail = (mailbox, emailsView) => {
@@ -90,27 +100,24 @@ const loadMail = (mailbox, emailsView) => {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
+    let html = '';
     emails.forEach(email => {
-      const emailPreviewDiv = document.createElement('div');
-      emailPreviewDiv.innerHTML = `
-      <span><strong>${email.sender}</strong></span>
-      <span>${email.subject}</span>
-      <span>${email.timestamp}</span>
-      `;
       // Add 'read' class if the email in the inbox and has been opened
-      if (mailbox === 'inbox' && email.read) {
-        emailPreviewDiv.classList.add('read');
-      }
-      emailPreviewDiv.classList.add('email-preview');
-      emailPreviewDiv.dataset.id = email.id; // set id in the element's dataset
-      emailsView.append(emailPreviewDiv);
-    })
+      const readClass = mailbox === 'inbox' && email.read ? 'read' : '';
+      html += `
+      <div class="email-preview ${readClass}" data-id="${email.id}">
+        <span><strong>${email.sender}</strong></span>
+        <span>${email.subject}</span>
+        <span>${email.timestamp}</span>
+      </div>
+      `;
+    });
+    emailsView.innerHTML = html;
   })
   .catch(error => console.log('Error', error));
 }
-
 // After many issues and searching, it turned out that the only way I could find to solve my
-// issue of not seeing 'read' or 'archived' status changes immediately following clicking a the mail,
+// issue of not seeing 'read' or 'archived' status changes immediately following clicking an email,
 // 'unread' button, 'archive' button, or 'unarchive' button, 
 // was by implementing an asynchronous function here
 const updateMailStatus = (id, category, value) => {
@@ -139,19 +146,4 @@ const sendMail = () => {
   })
   .catch(error => console.log('Error:', error));
   return false;
-}
-
-function loadMailbox(mailbox) {
-  // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
-  document.querySelector('#compose-view').style.display = 'none';
-  document.querySelector('#email-view').style.display = 'none';
-
-  const emailsView = document.getElementById('emails-view');
-  // Show the mailbox name
-  emailsView.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-  emailsView.dataset.mailbox = mailbox; // This was the only way I could properly add the correct eventlistener
-
-  // Load all mail in a given mailbox
-  loadMail(mailbox, emailsView);
 }
