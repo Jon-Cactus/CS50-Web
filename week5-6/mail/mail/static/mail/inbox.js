@@ -9,14 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const composeSubject = document.getElementById('compose-subject');
   const composeBody = document.getElementById('compose-body');
 
-  // Noticed repeated code for toggling different views
+  // Noticed repeated code for toggling different views (ternary operator learned from FreeCodeCamp)
   const toggleViews = (mailbox) => {
     emailsView.style.display = mailbox === 'emails' ? 'block' : 'none';
     emailView.style.display = mailbox === 'email' ? 'block' : 'none';
     composeView.style.display = mailbox === 'compose' ? 'block' : 'none';
   }
 
-  function loadMailbox(mailbox) {
+  const loadMailbox = (mailbox) => {
     // Show the mailbox and hide other views
     toggleViews('emails');
     // Show the mailbox name
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMail(mailbox, emailsView);
   }
 
-  function composeEmail(sender, subject, body, timestamp) {
+  const composeEmail = (sender, subject, body, timestamp) => {
     // Show compose view and hide other views
     toggleViews('compose');
     
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (arguments.length === 4) {
       composeRecipients.value = sender;
       composeSubject.value =`Re: ${subject}`;
-      composeBody.value = `On ${timestamp}, ${sender} wrote: ${body}`
+      composeBody.value = `\n\n\nOn ${timestamp}, ${sender} wrote:\n ${body}`
     } else {
       // Clear out composition fields
       composeRecipients.value = '';
@@ -48,76 +48,80 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => loadMailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => loadMailbox('archive'));
   document.querySelector('#compose').addEventListener('click', () => composeEmail());
-  document.querySelector('#compose-form').onsubmit = sendMail; // Send Mail
+  document.querySelector('#compose-form').onsubmit = () => sendMail(emailsView); // Send Mail
 
   // Add event listener for email clicks once
   emailsView.addEventListener('click', (event) => handleEmailPreviewClick(event, emailsView, emailView, toggleViews))
     
-  const handleEmailPreviewClick = (event, emailsView, emailView, toggleViews) => {
+  const handleEmailPreviewClick = async (event, emailsView, emailView, toggleViews) => {
     const emailPreview = event.target.closest('.email-preview');
     if (!emailPreview) return;
     const emailId = emailPreview.dataset.id;
     const mailbox = emailsView.dataset.mailbox; // Get current mailbox type
 
-    fetchEmail(emailId)
-      .then(email => {
-        // Render email
-        toggleViews('email');
-        emailView.innerHTML = '';
-        const emailDiv = document.createElement('div');
-        emailDiv.innerHTML = `
-          <p><strong>From: </strong>${email.sender}</p>
-          <p><strong>To: </strong>${email.recipients}</p>
-          <p><strong>Subject: </strong>${email.subject}</p>
-          <p><strong>Timestamp: </strong>${email.timestamp}</p>
-          <hr></hr>
-          <p>${email.body}</p>
-        `;
-        if (mailbox === 'inbox') {
-          emailDiv.innerHTML += `
-            <div>
-              <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
-              <button class="btn btn-sm btn-outline-primary" id="unread">Mark as unread</button>
-              <button class="btn btn-sm btn-outline-primary" id="archive">Archive</button>
-            </div>
+    try {
+      const email = await fetchEmail(emailId)
+          // Render email
+          toggleViews('email');
+          emailView.innerHTML = '';
+          const emailDiv = document.createElement('div');
+          emailDiv.innerHTML = `
+            <p><strong>From: </strong>${email.sender}</p>
+            <p><strong>To: </strong>${email.recipients}</p>
+            <p><strong>Subject: </strong>${email.subject}</p>
+            <p><strong>Timestamp: </strong>${email.timestamp}</p>
+            <hr></hr>
+            <p>${email.body}</p>
           `;
-        } else if (mailbox === 'archive') {
-          emailDiv.innerHTML += '<button class="btn btn-sm btn-outline-primary" id="unarchive">Unarchive</button>';
-        }
-        emailView.append(emailDiv);
-        // Add event listeners to buttons
-        if (mailbox === 'inbox') {
-          document.getElementById('reply').addEventListener('click', () => {
-            composeEmail(email.sender, email.subject, email.body, email.timestamp); // Pre-fill composeView
-          })
-          document.getElementById('unread').addEventListener('click', () => {
-            updateMailStatus(emailId, "read", false);
-          });
-          document.getElementById('archive').addEventListener('click', () => {
-            updateMailStatus(emailId, "archived", true).then(() => loadMailbox('inbox'));
-              // I learned my lesson after trying to get away with calling a function that includes
-              // a fetch call and then calling a function directly after it without
-              // chaining it with `.then(...)`. The second function may be called before the 
-              // fetch call completes, creating a race condition (thanks ddb).
-          });
-        } else if (mailbox === 'archive') {
-          document.getElementById('unarchive').addEventListener('click', () => {
-            updateMailStatus(emailId, "archived", false).then(() => loadMailbox('inbox'));
-          });
-        }
-      })
-      .catch(error => console.log('Error', error));
-    if (mailbox === 'inbox') updateMailStatus(emailId, "read", true); // Mark as read only for inbox
+          if (mailbox === 'inbox') {
+            emailDiv.innerHTML += `
+              <div>
+                <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
+                <button class="btn btn-sm btn-outline-primary" id="unread">Mark as unread</button>
+                <button class="btn btn-sm btn-outline-primary" id="archive">Archive</button>
+              </div>
+            `;
+            await updateMailStatus(emailId, "read", true); // Mark as read only for inbox
+          } else if (mailbox === 'archive') {
+            emailDiv.innerHTML += '<button class="btn btn-sm btn-outline-primary" id="unarchive">Unarchive</button>';
+          }
+
+          emailView.append(emailDiv);
+          // Add event listeners to buttons
+          if (mailbox === 'inbox') {
+            document.getElementById('reply').addEventListener('click', () => {
+              composeEmail(email.sender, email.subject, email.body, email.timestamp); // Pre-fill composeView
+            })
+            document.getElementById('unread').addEventListener('click', async () => {
+              await updateMailStatus(emailId, "read", false);
+            });
+            document.getElementById('archive').addEventListener('click', async () => {
+              await updateMailStatus(emailId, "archived", true);
+              loadMailbox('inbox');
+                // I learned my lesson after trying to get away with calling a function that includes
+                // a fetch call and then calling a function directly after it without
+                // chaining it with `.then(...)`. The second function may be called before the 
+                // fetch call completes, creating a race condition (thanks ddb).
+            });
+          } else if (mailbox === 'archive') {
+            document.getElementById('unarchive').addEventListener('click', async () => {
+              await updateMailStatus(emailId, "archived", false);
+              loadMailbox('inbox');
+            });
+          } 
+    } catch (error) {
+      console.log('Error', error);
+    }
   };
   loadMailbox('inbox');
 });
 
 // Loads mail in the appropriate mailbox
-const loadMail = (mailbox, emailsView) => {
-  emailsView.innerHTML = '';
-  fetch(`/emails/${mailbox}`)
-  .then(response => response.json())
-  .then(emails => {
+async function loadMail(mailbox, emailsView) {
+  try {
+    emailsView.innerHTML = '';
+    const response = await fetch(`/emails/${mailbox}`);
+    const emails = await response.json();
     let html = '';
     emails.forEach(email => {
       // Add 'read' class if the email in the inbox and has been opened
@@ -131,46 +135,54 @@ const loadMail = (mailbox, emailsView) => {
       `;
     });
     emailsView.innerHTML = html;
-  })
-  .catch(error => console.log('Error', error));
+  } catch (error) {
+    console.log('Error', error);
+  }
 }
 
-const fetchEmail = (emailId) => {
-  return fetch(`/emails/${emailId}`)
-    .then(response => response.json())
-    .catch(error => {
-      console.log("Error:", error);
-    })
+async function fetchEmail(emailId) {
+  try {
+    const response = await fetch(`/emails/${emailId}`);
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("Error:", error);
+  }
 }
-
 // After many issues and searching, it turned out that the only way I could find to solve my
 // issue of not seeing 'read' or 'archived' status changes immediately following clicking an email,
 // 'unread' button, 'archive' button, or 'unarchive' button, 
 // was by implementing an asynchronous function here
-const updateMailStatus = (id, category, value) => {
-  return fetch(`/emails/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      [category]: value
-    })
-  })
-  .catch(error => console.log('Error', error));
+async function updateMailStatus(id, category, value) {
+  try {
+    const response = await fetch(`/emails/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        [category]: value
+      })
+    });
+    return await response.json();
+  } catch (error) {
+    console.log('Error', error);
+  }
 }
 
-const sendMail = () => {
-  fetch('/emails', {
-    method: 'POST',
-    body: JSON.stringify({
-      recipients: document.querySelector('#compose-recipients').value,
-      subject: document.querySelector('#compose-subject').value,
-      body: document.querySelector('#compose-body').value
+async function sendMail(emailsView) {
+  try {
+    const response = fetch('/emails', {
+      method: 'POST',
+      body: JSON.stringify({
+        recipients: document.querySelector('#compose-recipients').value,
+        subject: document.querySelector('#compose-subject').value,
+        body: document.querySelector('#compose-body').value
+      })
     })
-  })
-  .then(response => response.json())
-  .then(result => {
-    console.log(result)
-    loadMailbox('sent', emailsView);
-  })
-  .catch(error => console.log('Error:', error));
-  return false;
-}
+    const data = await response.json();
+    console.log(data)
+    loadMail('sent', emailsView);
+    } catch (error) {
+      console.log('Error:', error);
+      return false;
+    }
+  }
