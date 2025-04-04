@@ -4,8 +4,6 @@ from django.db.models import Max
 # Create your tests here.
 
 
-
-
 class FlightTestCase(TestCase):
 
     # Set up dummy airports and flights
