@@ -1,0 +1,21 @@
+services:
+    db:
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=DZ48cmwr7!
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=airline
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+    web:
+        build: .
+        volumes:
+            - .:/app
+        ports:
+            - "8000:8000"
+        depends_on:
+            db:
+                condition: service_healthy
