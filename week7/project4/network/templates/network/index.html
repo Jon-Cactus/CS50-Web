@@ -1,13 +1,12 @@
 {% extends "network/layout.html" %}
-
+{% load static %}
 {% block body %}
 
     <div class="post-div">
         <form id="post-form">
-            {% csrf_token %}
             <h3>New Post</h3>
-            <textarea rows="5" cols="50" required></textarea>
-            <input class="btn btn-primary" type="submit" value="Post">
+            <textarea id="content" rows="5" cols="50" {% if  not request.user.is_authenticated %}placeholder="Login to post!" disabled{% endif %} required></textarea>
+            <button id="post-btn" class="btn btn-primary" {% if not request.user.is_authenticated %}disabled{% endif %}>Post</button>
         </form>
     </div>
 
