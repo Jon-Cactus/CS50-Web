@@ -30,22 +30,22 @@ def share_post(request):
 
     return JsonResponse({"message": "Post shared successfully.", "post_id": post.id}, status=201)
 
-def post_paginator(request, query, template, title):
-    # https://docs.djangoproject.com/en/5.1/ref/models/querysets/#select-related , acts like an SQL `JOIN`
-    paginator = Paginator(query.select_related("user").order_by("-timestamp"), 10)
+def post_paginator(request, query, template, title, user_obj=None):
+    paginator = Paginator(query, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, template, {
         "page_obj": page_obj,
-        "title": title
+        "title": title,
+        "user_obj": user_obj
     })
 def index(request):
-
     return post_paginator(
         request,
-        query=Post.objects.all(),
+        # https://docs.djangoproject.com/en/5.1/ref/models/querysets/#select-related , acts like an SQL `JOIN` for M
+        query=Post.objects.select_related("user").order_by("-timestamp"),
         template="network/index.html",
-        title="All Posts"
+        title="All Posts",
     )
 
 @login_required
@@ -53,10 +53,23 @@ def following(request):
     
     return post_paginator(
         request,
-        query=Post.objects.filter(user__in=request.user.following.all()),
+        query=Post.objects.select_related("user").filter(user__in=request.user.following.all().order_by("-timestamp")),
         template="network/following.html",
-        title="Following"
+        title="Following",
     )
+
+def profile(request, username):
+    user = User.objects.get(username=username)
+    if not user:
+        return False #TODO render error page
+    
+    return post_paginator(
+        request,
+        query=user.user_posts.select_related("user").order_by("-timestamp"),
+        template="network/profile.html",
+        title=f"{user.username}'s Profile",
+        user_obj=user
+        )
 
 
 def login_view(request):

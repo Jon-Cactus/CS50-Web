@@ -1,8 +1,8 @@
-{{ title }}
+<h1>{{ title }}</h1>
 
 {% for post in page_obj %}
     <div class="post-div">
-        <h3>{{ post.user.username }}</h3>
+        <h3><a href="{% url 'profile' username=post.user.username %}">{{ post.user.username }}</a></h3>
         {% if post.user == user %}
             TODO
             <a>Edit</a>

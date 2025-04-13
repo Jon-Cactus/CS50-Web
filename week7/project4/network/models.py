@@ -6,6 +6,14 @@ class User(AbstractUser):
     following = models.ManyToManyField("self", symmetrical=False, blank=True, related_name="followers")
     saved_posts = models.ManyToManyField("Post", blank=True, related_name="saved_by")
 
+    @property
+    def following_count(self):
+        return self.following.count()
+
+    @property
+    def follower_count(self):
+        return self.followers.count()
+
 class Post(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user_posts")
     content = models.TextField(max_length=512, blank=False, null=False)
