@@ -1,0 +1,33 @@
+{{ title }}
+
+{% for post in page_obj %}
+    <div class="post-div">
+        <h3>{{ post.user.username }}</h3>
+        {% if post.user == user %}
+            TODO
+            <a>Edit</a>
+        {% endif %}
+        <p class="post-text">{{ post.content }}</p>
+        <p class="small-text">{{ post.timestamp }}</p>
+        <p>
+            {% if user.is_authenticated %}
+                <span class="like-btn" data-id="{{ post.id }}" 
+                data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</span>
+                <!--When writing JS code for liking/unliking, add an onhover that changes 
+                the emoji to a broken heart emoji-->
+            {% else %}
+                🩶
+            {% endif %}
+            {{ post.like_count }}
+        </p>
+    </div>
+{% endfor %}
+<div class="paginator">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>

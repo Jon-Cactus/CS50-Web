@@ -1,7 +1,7 @@
 {% extends "network/layout.html" %}
 {% load static %}
 {% block body %}
-
+    <h1>All Posts</h1>
     <div class="post-div">
         <form id="post-form">
             <h3>New Post</h3>
@@ -9,7 +9,7 @@
             <button id="post-btn" class="btn btn-primary" {% if not request.user.is_authenticated %}disabled{% endif %}>Post</button>
         </form>
     </div>
-
+    {% include "network/partials/load_posts.html" with page_obj=page_obj %}
 {% endblock %}
 {% block script %}
     <script src="{% static 'network/index.js' %}"></script>

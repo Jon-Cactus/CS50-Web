@@ -14,7 +14,6 @@ async function post() {
             alert('Post content cannot be empty!');
             return;
         }
-
         const response = await fetch('/post', {
             method: 'POST',
             body: JSON.stringify({

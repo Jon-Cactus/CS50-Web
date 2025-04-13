@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -11,7 +12,7 @@ from .models import User, Post, Comment
 
 @csrf_exempt
 @login_required
-def post(request):
+def share_post(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
     
@@ -29,8 +30,33 @@ def post(request):
 
     return JsonResponse({"message": "Post shared successfully.", "post_id": post.id}, status=201)
 
+def post_paginator(request, query, template, title):
+    # https://docs.djangoproject.com/en/5.1/ref/models/querysets/#select-related , acts like an SQL `JOIN`
+    paginator = Paginator(query.select_related("user").order_by("-timestamp"), 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, template, {
+        "page_obj": page_obj,
+        "title": title
+    })
 def index(request):
-    return render(request, "network/index.html")
+
+    return post_paginator(
+        request,
+        query=Post.objects.all(),
+        template="network/index.html",
+        title="All Posts"
+    )
+
+@login_required
+def following(request):
+    
+    return post_paginator(
+        request,
+        query=Post.objects.filter(user__in=request.user.following.all()),
+        template="network/following.html",
+        title="Following"
+    )
 
 
 def login_view(request):
