@@ -1,0 +1,8 @@
+.edit-txt {
+    color: blue;
+    display: inline-block;
+}
+
+.edit-txt:hover {
+    cursor: pointer;
+}

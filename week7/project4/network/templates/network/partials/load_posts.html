@@ -1,27 +1,27 @@
-<h1>{{ title }}</h1>
-
-{% for post in page_obj %}
-    <div class="post-div">
-        <h3><a href="{% url 'profile' username=post.user.username %}">{{ post.user.username }}</a></h3>
-        {% if post.user == user %}
-            TODO
-            <a>Edit</a>
-        {% endif %}
-        <p class="post-text">{{ post.content }}</p>
-        <p class="small-text">{{ post.timestamp }}</p>
-        <p>
-            {% if user.is_authenticated %}
-                <span class="like-btn" data-id="{{ post.id }}" 
-                data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</span>
-                <!--When writing JS code for liking/unliking, add an onhover that changes 
-                the emoji to a broken heart emoji-->
-            {% else %}
-                🩶
+<div class="posts-div">
+    {% for post in page_obj %}
+        <div class="post-div">
+            <h3><a href="{% url 'profile' username=post.user.username %}">{{ post.user.username }}</a></h3>
+            {% if post.user == user %}
             {% endif %}
-            {{ post.like_count }}
-        </p>
-    </div>
-{% endfor %}
+            <p class="post-text">{{ post.content }}</p>
+            <p class="small-text">{{ post.timestamp }}</p>
+            TODO
+            <p class="edit-txt" data-id="{{ post.id }}">Edit</p>
+            <p>
+                {% if user.is_authenticated %}
+                    <span class="like-btn" data-id="{{ post.id }}" 
+                    data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</span>
+                    <!--When writing CSS code for liking/unliking, add an onhover that changes 
+                    the emoji to a broken heart emoji-->
+                {% else %}
+                    🩶
+                {% endif %}
+                {{ post.like_count }}
+            </p>
+        </div>
+    {% endfor %}
+</div>
 <div class="paginator">
     {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}">Previous</a>

@@ -1,9 +1,18 @@
 {% extends "network/layout.html" %}
 {% load static %}
+{% block title %}{{ title }}{% endblock %}
 {% block body %}
-    {{ user_obj.username }}
-    {{ user_obj.following_count }}
-    {{ user_obj.follower_count }}
+    <h1>{{ user_obj.username }}'s Profile</h1>
+    {% if user.is_authenticated %}
+        {% if user_obj.username not in user.following and user_obj.username != user.username %}
+            <button id="{% if user_obj.username in user.following %}unfollow-btn{% else %}follow-btn{% endif %}">
+                {% if user_obj.username in user.following %}Unfollow{% else %}Follow{% endif %}</button>
+        {% endif %}
+    {% else %}
+        <p class="alert-div">Log in to follow!</p>
+    {% endif %}
+    <strong>Followers: {{ user_obj.following_count }}</strong>
+    <strong>Following: {{ user_obj.follower_count }}</strong>
     {% include "network/partials/load_posts.html" with page_obj=page_obj %}
 {% endblock %}
 {% block script %}

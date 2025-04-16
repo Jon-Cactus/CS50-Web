@@ -1,13 +1,22 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Gain control of necessary DOM elements
     const form = document.getElementById('post-form');
+    const postsDiv = document.querySelector('.posts-div');
+
     form.addEventListener('submit', function(event) {
-        console.log('Submit event listener triggered');
         event.preventDefault();
         post();
     });
+
+    // Add event listeners
+    querySelectorAll('.edit-text').forEach(element => {
+        element.addEventListener('click', (event) => {
+            // take control of post-div here and display form
+        });
+    });
 });
 
-async function post() {
+const post = async () => {
     try {
         const content = document.getElementById('content').value;
         if (!content) {
@@ -23,8 +32,7 @@ async function post() {
         const data = await response.json();
         if (response.ok) {
             document.querySelector('#content').value = '';
-            console.log("Text area cleared");
-            alert('Post shared successfully!');
+            console.log('Post shared successfully!');
         } else {
             alert(`Error: ${data.error || 'Unknown error'}`);
         }
@@ -32,5 +40,17 @@ async function post() {
         console.error('Fetch error:', error);
         alert('Failed to submit post. Check console for details.');
         return false;
+    }
+}
+// Current format will not work -- will trigger function when clicking anywhere on the post.
+// Find a way to isolate the eventListener to the edit-txt alone
+const editPost = async (event) => {
+    try {
+        const postId = event.target.dataset.id;
+        if (!postId) {
+            console.log("Error: Problem accessing post");
+            return;
+        }
+        const response = await fetch(`/post/${postId}`)
     }
 }
