@@ -30,6 +30,36 @@ def share_post(request):
 
     return JsonResponse({"message": "Post shared successfully.", "post_id": post.id}, status=201)
 
+@csrf_exempt
+@login_required
+def edit_post(request, post_id):
+    try: # Make sure post exists
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found."}, status=404)
+    # Handle the user manually inputting the URL to edit a post
+    if post.user != request.user:
+        return JsonResponse({"error": "You are not authorized to edit this post!"}, status=403)
+    # Ensure this route is accessed only by PUT
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+    # grab all information from form object
+    data = json.loads(request.body)
+    updated_content = data.get("updatedContent")
+    if updated_content is not None:
+        post.content = updated_content
+        post.save()
+        return JsonResponse({
+            "message": "Post updated successfully.",
+            "post": {
+                "content": post.content,
+                "timestamp": post.timestamp.isoformat()
+            }
+        }, status=200)
+    else:
+        return JsonResponse({"error": "Can't save empty posts!"}, status=400)
+
+
 def post_paginator(request, query, template, title, user_obj=None):
     paginator = Paginator(query, 10)
     page_number = request.GET.get("page")

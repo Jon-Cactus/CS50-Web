@@ -3,15 +3,58 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('post-form');
     const postsDiv = document.querySelector('.posts-div');
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
         post();
     });
 
-    // Add event listeners
-    querySelectorAll('.edit-text').forEach(element => {
+    // Handle post edits
+    document.querySelectorAll('.edit-btn').forEach(element => {
         element.addEventListener('click', (event) => {
-            // take control of post-div here and display form
+            const postDiv = event.target.closest('.post-div');
+            let postText = postDiv.querySelector('.post-text').innerHTML; // Grab post text
+            const postTextDiv = postDiv.querySelector('.post-text-div');
+            const editBtn = postDiv.querySelector('.edit-btn');
+            const editFormDiv = postDiv.querySelector('.edit-form-div');
+            // toggle off original text display and edit button
+            postTextDiv.style.display = 'none'; // Hide original text
+            editBtn.style.display = 'none';
+
+            if (!postDiv.querySelector('.edit-form')) {
+                // take control of post-div here and display form
+                editFormDiv.innerHTML =
+                `<form class="edit-form">
+                    <textarea id="edit-content" rows="5" cols="50" required>${postText}</textarea>
+                    <div>
+                        <button id="edit-post-save-btn" class="btn btn-primary">Save</button>
+                        <a id="edit-post-cancel-btn" class="btn btn-primary">Cancel</a>
+                    </div>
+                </form>`
+
+                const form = postDiv.querySelector('.edit-form');
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const updatedContent = form.querySelector('#edit-content').value;
+                    const postId = element.dataset.id;
+                    const result = await editPost(postId, updatedContent);
+                    if (result.success) { // Ensure result has been successfully retrieved
+                        // Update UI with new post information without reloading
+                        postDiv.querySelector('.post-text').innerHTML = result.content;
+                        // Toggle on default post display and edit button
+                        postTextDiv.style.display = 'block';
+                        editBtn.style.display = 'block';
+                        editFormDiv.innerHTML = ''; // Hide form
+                    } else {
+                        alert(`Error: ${result.error}`)
+                    }
+                });
+
+                postDiv.querySelector('#edit-post-cancel-btn').addEventListener('click', () => {
+                    editFormDiv.innerHTML = '';
+                    postTextDiv.style.display = 'block';
+                    editBtn.style.display = 'block';
+                })
+            }
         });
     });
 });
@@ -34,7 +77,7 @@ const post = async () => {
             document.querySelector('#content').value = '';
             console.log('Post shared successfully!');
         } else {
-            alert(`Error: ${data.error || 'Unknown error'}`);
+            alert(`Error: ${data.error}`);
         }
     } catch (error) {
         console.error('Fetch error:', error);
@@ -42,15 +85,23 @@ const post = async () => {
         return false;
     }
 }
-// Current format will not work -- will trigger function when clicking anywhere on the post.
-// Find a way to isolate the eventListener to the edit-txt alone
-const editPost = async (event) => {
+
+const editPost = async (postId, updatedContent) => {
     try {
-        const postId = event.target.dataset.id;
-        if (!postId) {
-            console.log("Error: Problem accessing post");
-            return;
+        const response = await fetch(`/post/${postId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                updatedContent: updatedContent,
+            })
+        });
+        const data = await response.json();
+        if (response.ok && data.message) {
+            return { success: true, content: data.post.content };
+        } else {
+            return { success: false, error: data.error };
         }
-        const response = await fetch(`/post/${postId}`)
+    } catch (error) {
+        console.log('Error:', error);
+        return { success: false, error: "Failed to update post" };
     }
 }

@@ -2,12 +2,15 @@
     {% for post in page_obj %}
         <div class="post-div">
             <h3><a href="{% url 'profile' username=post.user.username %}">{{ post.user.username }}</a></h3>
-            {% if post.user == user %}
-            {% endif %}
-            <p class="post-text">{{ post.content }}</p>
+            
+            <div class="post-text-div">
+                <p class="post-text">{{ post.content }}</p>
+            </div>
+            <div class="edit-form-div"></div>
             <p class="small-text">{{ post.timestamp }}</p>
-            TODO
-            <p class="edit-txt" data-id="{{ post.id }}">Edit</p>
+            {% if post.user == user %}
+                <button class="edit-btn" data-id="{{ post.id }}">Edit</button>
+            {% endif %}
             <p>
                 {% if user.is_authenticated %}
                     <span class="like-btn" data-id="{{ post.id }}" 

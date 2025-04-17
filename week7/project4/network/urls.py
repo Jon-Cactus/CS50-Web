@@ -13,5 +13,6 @@ urlpatterns = [
 
     # API Routes
     path("post", views.share_post, name="post"),
+    path("post/<int:post_id>", views.edit_post, name="edit_post"),
     
 ]

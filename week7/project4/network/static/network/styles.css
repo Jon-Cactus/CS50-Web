@@ -1,8 +1,8 @@
-.edit-txt {
+.edit-btn {
     color: blue;
     display: inline-block;
 }
 
-.edit-txt:hover {
+.edit-btn:hover {
     cursor: pointer;
 }
