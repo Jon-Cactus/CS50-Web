@@ -60,7 +60,14 @@ def edit_post(request, post_id):
         return JsonResponse({"error": "Can't save empty posts!"}, status=400)
 
 def follow_user(request, user_id):
-    pass
+    try:
+        user_to_be_followed = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"Error": "User not found."}, status=404)
+    
+    if request.method != "PUT":
+        return JsonResponse({"Error": "PUT request required."}, status=400)
+    
 
 def post_paginator(request, query, template, title, user_obj=None):
     paginator = Paginator(query, 10)
