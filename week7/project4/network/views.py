@@ -59,6 +59,8 @@ def edit_post(request, post_id):
     else:
         return JsonResponse({"error": "Can't save empty posts!"}, status=400)
 
+def follow_user(request, user_id):
+    pass
 
 def post_paginator(request, query, template, title, user_obj=None):
     paginator = Paginator(query, 10)
@@ -69,6 +71,7 @@ def post_paginator(request, query, template, title, user_obj=None):
         "title": title,
         "user_obj": user_obj
     })
+
 def index(request):
     return post_paginator(
         request,
@@ -79,11 +82,10 @@ def index(request):
     )
 
 @login_required
-def following(request):
-    
+def following_posts(request):
     return post_paginator(
         request,
-        query=Post.objects.select_related("user").filter(user__in=request.user.following.all().order_by("-timestamp")),
+        query=Post.objects.select_related("user").filter(user__in=request.user.following.all()).order_by("-timestamp"),
         template="network/following.html",
         title="Following",
     )

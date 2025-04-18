@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <textarea id="edit-content" rows="5" cols="50" required>${postText}</textarea>
                     <div>
                         <button id="edit-post-save-btn" class="btn btn-primary">Save</button>
-                        <a id="edit-post-cancel-btn" class="btn btn-primary">Cancel</a>
+                        <a id="edit-post-cancel-btn" class="btn btn-outline-secondary">Cancel</a>
                     </div>
                 </form>`
 
