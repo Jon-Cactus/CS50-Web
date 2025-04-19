@@ -5,7 +5,9 @@
     <h1>{{ user_obj.username }}'s Profile</h1>
     {% if user.is_authenticated %}
         {% if user_obj.username != user.username %}
-            <button class="btn btn-outline-primary" id="{% if user_obj.username in user.following %}unfollow-btn{% else %}follow-btn{% endif %}">
+            <button class="btn btn-outline-primary"
+                id="toggle-follow-btn"
+                data-username="{{ user_obj.username }}">
                 {% if user_obj.username in user.following %}Unfollow{% else %}Follow{% endif %}</button>
         {% endif %}
     {% else %}

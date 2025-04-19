@@ -14,5 +14,5 @@ urlpatterns = [
     # API Routes
     path("post", views.share_post, name="post"),
     path("post/<int:post_id>", views.edit_post, name="edit_post"),
-    path("profile/<int:user_id>", views.follow_user, name="follow_user")
+    path("profile/<str:username>/follow-toggle", views.toggle_follow, name="toggle_follow")
 ]

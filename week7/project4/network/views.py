@@ -54,19 +54,33 @@ def edit_post(request, post_id):
             "post": {
                 "content": post.content,
                 "timestamp": post.timestamp.isoformat()
+                # TODO add a new timestamp for edited posts?
             }
         }, status=200)
     else:
         return JsonResponse({"error": "Can't save empty posts!"}, status=400)
 
-def follow_user(request, user_id):
+@csrf_exempt
+@login_required
+def toggle_follow(request, username):
+    # TODO issues handling follow unfollow in the template(?)
     try:
-        user_to_be_followed = User.objects.get(id=user_id)
+        target_user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return JsonResponse({"Error": "User not found."}, status=404)
+        return JsonResponse({"error": "User not found."}, status=404)
     
-    if request.method != "PUT":
-        return JsonResponse({"Error": "PUT request required."}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    user = User.objects.get(id=request.user.id)
+    if user == target_user: # Check if the user has manually entered the URL to follow themself
+        return JsonResponse({"error": "Cannot follow yourself!"}, status=400)
+    # Check for follow or unfollow
+    if user.following.filter(id=target_user.id).exists():
+        user.following.remove(target_user)
+        return JsonResponse({"message": f"Unfollowed {username}", "following": False}, status=200)
+    user.following.add(target_user)
+    return JsonResponse({"message": f"Followed {username}", "following": True}, status=200)
     
 
 def post_paginator(request, query, template, title, user_obj=None):
