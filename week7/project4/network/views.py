@@ -78,9 +78,9 @@ def toggle_follow(request, username):
     # Check for follow or unfollow
     if user.following.filter(id=target_user.id).exists():
         user.following.remove(target_user)
-        return JsonResponse({"message": f"Unfollowed {username}", "following": False}, status=200)
+        return JsonResponse({"message": f"Unfollowed {username}", "following": False, "follower_count": target_user.follower_count}, status=200)
     user.following.add(target_user)
-    return JsonResponse({"message": f"Followed {username}", "following": True}, status=200)
+    return JsonResponse({"message": f"Followed {username}", "following": True, "follower_count": target_user.follower_count}, status=200)
     
 
 def post_paginator(request, query, template, title, user_obj=None):

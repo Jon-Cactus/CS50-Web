@@ -27,7 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     alert("Successfully unfollowed user")
                 }
-                toggleFollowBtn.textContent = result.following ? 'Unfollow' : "Follow";
+                console.log(result.follower_count);
+                // Update follower count on profile page
+                const followerCount = document.getElementById('follower-count');
+                followerCount.innerText = `Followers: ${result.follower_count}`;
+                toggleFollowBtn.innerText = result.following ? 'Unfollow' : "Follow";
             } else {
                 alert(`Error: ${result.error}`);
             }
@@ -140,9 +144,18 @@ const toggleFollow = async (username) => {
             method: 'POST',
         });
         const data = await response.json();
-        return {success: true, following: data.following, message: data.message};
+        if (response.ok) {
+            return {
+                success: true,
+                following: data.following,
+                message: data.message,
+                follower_count: data.follower_count
+            };
+        } else {
+            return { success: false, error: data.error }
+        }
     } catch (error) {
         console.error('Error:', error);
-        return {success: false, error: error.message}
+        return { success: false, error: error.message }
     }
 }

@@ -8,13 +8,13 @@
             <button class="btn btn-outline-primary"
                 id="toggle-follow-btn"
                 data-username="{{ user_obj.username }}">
-                {% if user_obj.username in user.following %}Unfollow{% else %}Follow{% endif %}</button>
+                {% if user_obj in user.following %}Unfollow{% else %}Follow{% endif %}</button>
         {% endif %}
     {% else %}
         <p class="alert-div">Log in to follow!</p>
     {% endif %}
-    <strong>Followers: {{ user_obj.following_count }}</strong>
-    <strong>Following: {{ user_obj.follower_count }}</strong>
+    <strong id="follower-count">Followers: {{ user_obj.follower_count }}</strong>
+    <strong id="following-count">Following: {{ user_obj.following_count }}</strong>
     {% include "network/partials/load_posts.html" with page_obj=page_obj %}
 {% endblock %}
 {% block script %}
