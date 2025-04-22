@@ -27,10 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     alert("Successfully unfollowed user")
                 }
-                console.log(result.follower_count);
                 // Update follower count on profile page
                 const followerCount = document.getElementById('follower-count');
-                followerCount.innerText = `Followers: ${result.follower_count}`;
+                followerCount.innerText = `Followers: ${result.followerCount}`;
                 toggleFollowBtn.innerText = result.following ? 'Unfollow' : "Follow";
             } else {
                 alert(`Error: ${result.error}`);
@@ -138,6 +137,28 @@ const editPost = async (postId, updatedContent) => {
     }
 }
 
+const likePost = async (post_id) => {
+    try {
+        const response = await fetch(`/post/${post_id}/like`, {
+            method: 'POST',
+        });
+        const data = await response.json();
+        if (response.ok) {
+            return {
+                message: data.message,
+                success: true,
+                like: data.like,
+                likeCount: data.like_count
+            }
+        } else {
+            return { success: false, error: data.error }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return { success: false, error: error.message }
+    }
+}
+
 const toggleFollow = async (username) => {
     try {
         const response = await fetch(`/profile/${username}/follow-toggle`,{
@@ -146,10 +167,10 @@ const toggleFollow = async (username) => {
         const data = await response.json();
         if (response.ok) {
             return {
+                message: data.message,
                 success: true,
                 following: data.following,
-                message: data.message,
-                follower_count: data.follower_count
+                followerCount: data.follower_count
             };
         } else {
             return { success: false, error: data.error }

@@ -33,16 +33,17 @@ def share_post(request):
 @csrf_exempt
 @login_required
 def edit_post(request, post_id):
-    try: # Make sure post exists
-        post = Post.objects.get(id=post_id)
-    except Post.DoesNotExist:
-        return JsonResponse({"error": "Post not found."}, status=404)
-    # Handle the user manually inputting the URL to edit a post
-    if post.user != request.user:
-        return JsonResponse({"error": "You are not authorized to edit this post!"}, status=403)
     # Ensure this route is accessed only by PUT
     if request.method != "PUT":
         return JsonResponse({"error": "PUT request required."}, status=400)
+    # Ensure post exists
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found."}, status=404)
+    #  Prevent the user from manually inputting the URL to edit a post
+    if post.user != request.user:
+        return JsonResponse({"error": "You are not authorized to edit this post!"}, status=403)
     # grab all information from form object
     data = json.loads(request.body)
     updated_content = data.get("updatedContent")
@@ -63,14 +64,13 @@ def edit_post(request, post_id):
 @csrf_exempt
 @login_required
 def toggle_follow(request, username):
-    # TODO issues handling follow unfollow in the template(?)
-    try:
+    # Ensure this route is accessed only by put
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    try: # Ensure post exists
         target_user = User.objects.get(username=username)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
-    
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required."}, status=400)
     
     user = User.objects.get(id=request.user.id)
     if user == target_user: # Check if the user has manually entered the URL to follow themself
@@ -81,7 +81,23 @@ def toggle_follow(request, username):
         return JsonResponse({"message": f"Unfollowed {username}", "following": False, "follower_count": target_user.follower_count}, status=200)
     user.following.add(target_user)
     return JsonResponse({"message": f"Followed {username}", "following": True, "follower_count": target_user.follower_count}, status=200)
-    
+
+@csrf_exempt
+@login_required
+def like_post(request, post_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found"}, status=404)
+    # Add or remove the user from the post's likes
+    user = User.objects.get(id=request.user.id)
+    if post.likes.filter(id=user.id).exists():
+        post.likes.remove(user)
+        return JsonResponse({"message": "Unliked post!", "like": False, "like_count": post.like_count}, status=200)
+    post.likes.add(user)
+    return JsonResponse({"message": "Liked post!", "like": True, "like_count": post.like_count}, status=200)
 
 def post_paginator(request, query, template, title, user_obj=None):
     paginator = Paginator(query, 10)
