@@ -95,9 +95,9 @@ def like_post(request, post_id):
     user = User.objects.get(id=request.user.id)
     if post.likes.filter(id=user.id).exists():
         post.likes.remove(user)
-        return JsonResponse({"message": "Unliked post!", "like": False, "like_count": post.like_count}, status=200)
+        return JsonResponse({"message": "Unliked post!", "is_liked": False, "like_count": post.like_count}, status=200)
     post.likes.add(user)
-    return JsonResponse({"message": "Liked post!", "like": True, "like_count": post.like_count}, status=200)
+    return JsonResponse({"message": "Liked post!", "is_liked": True, "like_count": post.like_count}, status=200)
 
 def post_paginator(request, query, template, title, user_obj=None):
     paginator = Paginator(query, 10)

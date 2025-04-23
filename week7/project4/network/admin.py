@@ -4,10 +4,12 @@ from .models import User, Post, Comment
 # Register your models here.
 class PostAdmin(admin.ModelAdmin):
     list_display = ("user", "content", "timestamp")
+    readonly_fields = ("get_likes",)
 
     def get_likes(self, obj):
         return ", ".join([user.username for user in obj.likes.all()])
     get_likes.short_description = "Likes"
+
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ("username", "get_following", "get_followers")

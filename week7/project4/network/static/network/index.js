@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const postForm = document.getElementById('post-form');
     const postsDiv = document.querySelector('.posts-div');
     const toggleFollowBtn = document.getElementById('toggle-follow-btn');
+    const likeBtn = document.getElementById('like-btn');
 
     // Handle post form submission
     if (postForm) {
@@ -17,9 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleFollowBtn.addEventListener('click', async (event) => {
             const username = event.target.dataset.username;
             if (!username) {
-                alert('Username missing');
+                console.log(`Couldn't find username`);
                 return;
             }
+            toggleFollowBtn.disabled = true; // Disable button while fetching API
             const result = await toggleFollow(username);
             if (result.success) {
                 if (result.following) {
@@ -34,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 alert(`Error: ${result.error}`);
             }
+            toggleFollowBtn.disabled = false; // Restore button
         });
-    }
-    
+    }  
 
     // Handle post edits
     if (postsDiv) {
@@ -88,6 +90,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+        postsDiv.querySelectorAll('.like-btn').forEach(element => {
+            element.addEventListener('click', async (event) => {
+                // Object destructuring learned from WebDevSimplified: # https://www.youtube.com/watch?v=NIq3qLaHCIs&t=424s
+                const { id: postId, liked } = event.target.dataset;
+
+                event.target.disabled = true;
+
+                const result = await likePost(postId);
+                if (result.success) {
+                    const likeCount = event.target.closest('.post-div').querySelector('.like-count');
+                    likeCount.textContent = result.likeCount;
+
+                    event.target.dataset.liked = result.isLiked;
+                    event.target.classList.toggle('unlike', result.isLiked);
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+                event.target.disabled = false;
+            });
+        });
     }
     
 });
@@ -137,9 +159,9 @@ const editPost = async (postId, updatedContent) => {
     }
 }
 
-const likePost = async (post_id) => {
+const likePost = async (postId) => {
     try {
-        const response = await fetch(`/post/${post_id}/like`, {
+        const response = await fetch(`/post/${postId}/like`, {
             method: 'POST',
         });
         const data = await response.json();
@@ -147,7 +169,7 @@ const likePost = async (post_id) => {
             return {
                 message: data.message,
                 success: true,
-                like: data.like,
+                isLiked: data.is_liked,
                 likeCount: data.like_count
             }
         } else {
