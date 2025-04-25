@@ -90,11 +90,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+        // Handle likes
         postsDiv.querySelectorAll('.like-btn').forEach(element => {
+            // Change to broken heart emoji when hovering over the dislike button
+            element.addEventListener('mouseenter', () => {
+                element.innerText = (element.dataset.liked === "true") ? '💔' : '❤️';
+            });
+            element.addEventListener('mouseleave', () => {
+                element.innerText = '❤️';
+            })
+
             element.addEventListener('click', async (event) => {
                 // Object destructuring learned from WebDevSimplified: # https://www.youtube.com/watch?v=NIq3qLaHCIs&t=424s
-                const { id: postId, liked } = event.target.dataset;
-
+                const { id: postId } = event.target.dataset;
+                // Disable button to protect from spam clicks
                 event.target.disabled = true;
 
                 const result = await likePost(postId);
@@ -103,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     likeCount.textContent = result.likeCount;
 
                     event.target.dataset.liked = result.isLiked;
-                    event.target.classList.toggle('unlike', result.isLiked);
                 } else {
                     alert(`Error: ${result.error}`);
                 }

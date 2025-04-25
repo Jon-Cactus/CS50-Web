@@ -1,8 +1,56 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.nav {
+    background-color: #171c28;
+}
+
+.body {
+    background-color: #1d2433;
+    color: whitesmoke;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: auto;
+}
+
+.post-form {
+}
+
+.post-btn {
+}
+
+textarea {
+    background-color: #171c28;
+    border-radius: 10px;
+    border: none;
+    resize: none;
+}
+
+.post-div {
+    border-radius: 15px;
+    min-width: 550px;
+    background-color: #2f3b54;
+    margin-top: 15px;
+    padding: 3px 0 1px 15px;
+}
+
+.posts-div {
+}
+
 .edit-btn {
-    color: blue;
-    display: inline-block;
+    color: whitesmoke;
+    background-color: #2f3b54;
+    border: none;
 }
 
 .edit-btn:hover {
     cursor: pointer;
+}
+
+.like-btn {
+    border: none;
+    background-color: inherit;
 }

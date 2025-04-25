@@ -13,10 +13,8 @@
             {% endif %}
             <p>
                 {% if user.is_authenticated %}
-                    <button class="like-btn" data-id="{{ post.id }}" 
+                    <button class="like-btn" data-id="{{ post.id }}"
                     data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</button>
-                    <!--When writing CSS code for liking/unliking, add an onhover that changes 
-                    the emoji to a broken heart emoji-->
                 {% else %}
                     🩶
                 {% endif %}
