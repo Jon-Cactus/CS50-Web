@@ -13,20 +13,44 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: auto;
+    min-height: 100vh;
+}
+
+.header-div {
+    border: 1px solid yellow;
+}
+
+.header-txt {
+    align-self: flex-start;
+    margin-left: 15px;
+    width: 550px;
+}
+
+.profile-card {
+    border: 1px solid green;
+    min-width: 550px;
+    min-height: 100px;
 }
 
 .post-form {
+
 }
 
 .post-btn {
+
 }
 
 textarea {
     background-color: #171c28;
+    color: whitesmoke;
+    padding: 3px 10px;
     border-radius: 10px;
     border: none;
     resize: none;
+}
+
+.posts-div {
+    border: 1px solid red;
 }
 
 .post-div {
@@ -35,10 +59,10 @@ textarea {
     background-color: #2f3b54;
     margin-top: 15px;
     padding: 3px 0 1px 15px;
+    border: 1px solid orange;
 }
 
-.posts-div {
-}
+
 
 .edit-btn {
     color: whitesmoke;
