@@ -1,7 +1,7 @@
 <div class="posts-div">
     {% for post in page_obj %}
         <div class="post-div">
-            <h3><a href="{% url 'profile' username=post.user.username %}">{{ post.user.username }}</a></h3>
+            <h3><a href="{% url 'profile' username=post.profile.user.username %}">{{ post.profile.user.username }}</a></h3>
             
             <div class="post-text-div">
                 <p class="post-text">{{ post.content }}</p>
@@ -13,7 +13,7 @@
                     {{ post.edited_timestamp }}
                 {% endif %}
             </div>
-            {% if post.user == user %}
+            {% if post.profile == user.profile %}
                 <button class="edit-btn" data-id="{{ post.id }}">Edit</button>
             {% endif %}
             <p>

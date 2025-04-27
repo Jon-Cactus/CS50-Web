@@ -16,8 +16,8 @@
         {% else %}
             <p class="alert-div">Log in to follow!</p>
         {% endif %}
-        <strong id="follower-count">Followers: {{ user_obj.follower_count }}</strong>
-        <strong id="following-count">Following: {{ user_obj.following_count }}</strong>
+        <strong id="follower-count">Followers: {{ user_obj.profile.follower_count }}</strong>
+        <strong id="following-count">Following: {{ user_obj.profile.following_count }}</strong>
     </div>
 
     {% include "network/partials/load_posts.html" with page_obj=page_obj %}
