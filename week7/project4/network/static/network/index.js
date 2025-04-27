@@ -72,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         const result = await editPost(postId, updatedContent);
                         if (result.success) { // Ensure result has been successfully retrieved
                             // Update UI with new post information without reloading
-                            postDiv.querySelector('.post-text').innerHTML = result.content;
+                            postDiv.querySelector('.post-text').innerHTML = result.post.content;
+                            postDiv.querySelector('.edited-timestamp-div').innerHTML = result.post.edited_timestamp;
                             // Toggle on default post display and edit button
                             postTextDiv.style.display = 'block';
                             editBtn.style.display = 'block';
@@ -157,7 +158,7 @@ const editPost = async (postId, updatedContent) => {
         });
         const data = await response.json();
         if (response.ok && data.message) {
-            return { success: true, content: data.post.content };
+            return { success: true, post: data.post };
         } else {
             return { success: false, error: data.error };
         }

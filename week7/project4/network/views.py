@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.utils import timezone
 from .models import User, Post, Comment
 
 @csrf_exempt
@@ -47,15 +47,16 @@ def edit_post(request, post_id):
     # grab all information from form object
     data = json.loads(request.body)
     updated_content = data.get("updatedContent")
-    if updated_content is not None:
+    if updated_content is not None: # Ensure form is not empty
         post.content = updated_content
+        post.edited_timestamp = timezone.now()
         post.save()
         return JsonResponse({
             "message": "Post updated successfully.",
             "post": {
                 "content": post.content,
-                "timestamp": post.timestamp.isoformat()
-                # TODO add a new timestamp for edited posts?
+                "timestamp": post.timestamp.isoformat(),
+                "edited_timestamp": post.edited_timestamp.isoformat() if post.edited_timestamp else None
             }
         }, status=200)
     else:
@@ -122,7 +123,7 @@ def index(request):
 def following_posts(request):
     return post_paginator(
         request,
-        query=Post.objects.select_related("user").filter(user__in=request.user.following.all()).order_by("-timestamp"),
+        query=Post.objects.select_related("user").filter(user__in=request.user.profile.following.all()).order_by("-timestamp"),
         template="network/following.html",
         title="Following",
     )
@@ -134,7 +135,7 @@ def profile(request, username):
     
     return post_paginator(
         request,
-        query=user.user_posts.select_related("user").order_by("-timestamp"),
+        query=user.post_set.select_related("user").order_by("-timestamp"),
         template="network/profile.html",
         title=f"{user.username}'s Profile",
         user_obj=user

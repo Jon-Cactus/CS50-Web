@@ -8,6 +8,11 @@
             </div>
             <div class="edit-form-div"></div>
             <p class="small-text">{{ post.timestamp }}</p>
+            <div class="edited-timestamp-div">
+                {% if post.edited_timestamp %}
+                    {{ post.edited_timestamp }}
+                {% endif %}
+            </div>
             {% if post.user == user %}
                 <button class="edit-btn" data-id="{{ post.id }}">Edit</button>
             {% endif %}
