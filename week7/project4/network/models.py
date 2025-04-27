@@ -37,6 +37,10 @@ class Post(models.Model):
     @property
     def like_count(self):
         return self.likes.count()
+    
+    @property
+    def comment_count(self):
+        return self.comment_set.count()
 
 class Comment(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
