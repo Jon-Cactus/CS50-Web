@@ -74,7 +74,24 @@ textarea {
     cursor: pointer;
 }
 
-.like-btn {
+.post-interact-div {
+    width: inherit;
+    border: 1px solid green;
+    display: inline-flex;
+    align-items: center;
+}
+
+.count {
+    margin-right: 10px;
+}
+
+.post-btn {
     border: none;
     background-color: inherit;
+}
+
+.timestamp-txt {
+    font-size: 0.7rem;
+    color: grey;
+    margin: 0;
 }

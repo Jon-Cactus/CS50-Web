@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (result.success) { // Ensure result has been successfully retrieved
                             // Update UI with new post information without reloading
                             postDiv.querySelector('.post-text').innerHTML = result.post.content;
-                            postDiv.querySelector('.edited-timestamp-div').innerHTML = result.post.edited_timestamp;
+                            postDiv.querySelector('.edited-timestamp-txt').innerHTML = `(edited ${result.post.edited_timestamp})`;
                             // Toggle on default post display and edit button
                             postTextDiv.style.display = 'block';
                             editBtn.style.display = 'block';

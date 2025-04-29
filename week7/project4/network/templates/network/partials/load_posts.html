@@ -7,24 +7,29 @@
                 <p class="post-text">{{ post.content }}</p>
             </div>
             <div class="edit-form-div"></div>
-            <p class="small-text">{{ post.timestamp }}</p>
-            <div class="edited-timestamp-div">
-                {% if post.edited_timestamp %}
-                    {{ post.edited_timestamp }}
-                {% endif %}
-            </div>
-            {% if post.profile == user.profile %}
-                <button class="edit-btn" data-id="{{ post.id }}">Edit</button>
-            {% endif %}
-            <p>
+            <p class="timestamp-txt">{{ post.timestamp }}</p>
+            
+            <div class="post-interact-div"> <!--contain all elements for interacting with a post-->
                 {% if user.is_authenticated %}
-                    <button class="like-btn" data-id="{{ post.id }}"
+                    <button class="post-btn" data-id="{{ post.id }}"
                     data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</button>
                 {% else %}
                     🩶
                 {% endif %}
-                <strong class="like-count">{{ post.like_count }}</strong>
-            </p>
+                <strong class="like-count count">{{ post.like_count }}</strong>
+                <button class="post-btn" data-id="{{ post.id }}">💬</button>
+                <strong class="comment-count count">{{ post.comment_count }}</strong>
+                {% if post.profile == user.profile %}
+                    <button class="edit-btn" data-id="{{ post.id }}">Edit</button>
+                {% endif %}
+
+                    <p class="edited-timestamp-txt timestamp-txt">
+                        {% if post.edited_timestamp %}
+                            (edited {{ post.edited_timestamp }})
+                        {% endif %}
+                    </p>
+
+            </div>
         </div>
     {% endfor %}
 </div>
