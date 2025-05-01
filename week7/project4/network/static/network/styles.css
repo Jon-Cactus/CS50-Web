@@ -17,7 +17,7 @@
 }
 
 .header-div {
-    border: 1px solid yellow;
+    /*border: 1px solid yellow;*/
 }
 
 .header-txt {
@@ -26,8 +26,12 @@
     width: 550px;
 }
 
+.post-header-txt {
+    color: #5ccfe6;
+}
+
 .profile-card {
-    border: 1px solid green;
+    /*border: 1px solid green;*/
     min-width: 550px;
     min-height: 100px;
 }
@@ -36,33 +40,36 @@
 
 }
 
-.post-btn {
-
-}
-
-textarea {
+.post-textarea {
     background-color: #171c28;
     color: whitesmoke;
     padding: 3px 10px;
     border-radius: 10px;
     border: none;
     resize: none;
+    width: 97%;
 }
 
 .posts-div {
-    border: 1px solid red;
+    /*border: 1px solid red;*/
 }
 
 .post-div {
     border-radius: 15px;
-    min-width: 550px;
+    width: 550px;
     background-color: #2f3b54;
     margin-top: 15px;
     padding: 3px 0 1px 15px;
     border: 1px solid orange;
 }
 
-
+.post-btn {
+    background-color: #5ccfe6;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px 5px 10px;
+    font-weight: 600;
+}
 
 .edit-btn {
     color: whitesmoke;
@@ -75,8 +82,8 @@ textarea {
 }
 
 .post-interact-div {
-    width: inherit;
-    border: 1px solid green;
+    width: 100%;
+    /*border: 1px solid green;*/
     display: inline-flex;
     align-items: center;
 }
@@ -85,7 +92,7 @@ textarea {
     margin-right: 10px;
 }
 
-.post-btn {
+.post-interact-btn {
     border: none;
     background-color: inherit;
 }

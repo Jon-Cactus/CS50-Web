@@ -1,7 +1,7 @@
 <div class="posts-div">
     {% for post in page_obj %}
         <div class="post-div">
-            <h3><a href="{% url 'profile' username=post.profile.user.username %}">{{ post.profile.user.username }}</a></h3>
+            <h3><a class="post-header-txt" href="{% url 'profile' username=post.profile.user.username %}">{{ post.profile.user.username }}</a></h3>
             
             <div class="post-text-div">
                 <p class="post-text">{{ post.content }}</p>
@@ -11,13 +11,13 @@
             
             <div class="post-interact-div"> <!--contain all elements for interacting with a post-->
                 {% if user.is_authenticated %}
-                    <button class="post-btn" data-id="{{ post.id }}"
+                    <button class="post-interact-btn" data-id="{{ post.id }}"
                     data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</button>
                 {% else %}
                     🩶
                 {% endif %}
                 <strong class="like-count count">{{ post.like_count }}</strong>
-                <button class="post-btn" data-id="{{ post.id }}">💬</button>
+                <button class="post-interact-btn" data-id="{{ post.id }}">💬</button>
                 <strong class="comment-count count">{{ post.comment_count }}</strong>
                 {% if post.profile == user.profile %}
                     <button class="edit-btn" data-id="{{ post.id }}">Edit</button>

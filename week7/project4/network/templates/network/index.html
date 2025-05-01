@@ -8,8 +8,10 @@
     <div class="post-div">
         <form id="post-form">
             <h3>New Post</h3>
-            <textarea id="content" rows="5" cols="50" {% if  not request.user.is_authenticated %}placeholder="Login to post!" disabled{% endif %} required></textarea>
-            <button id="post-btn" class="btn btn-primary" {% if not request.user.is_authenticated %}disabled{% endif %}>Post</button>
+            <textarea class="post-textarea" id="content" rows="5" cols="50" {% if  not request.user.is_authenticated %}placeholder="Login to post!" disabled{% endif %} required></textarea>
+            <div>
+                <button id="post-btn" class="post-btn" {% if not request.user.is_authenticated %}disabled{% endif %}>Post</button>
+            </div>
         </form>
     </div>
     {% include "network/partials/load_posts.html" with page_obj=page_obj %}

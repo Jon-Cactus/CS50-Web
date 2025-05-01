@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Take control of post-div here and display form
                     editFormDiv.innerHTML =
                     `<form class="edit-form">
-                        <textarea id="edit-content" rows="5" cols="50" required>${postText}</textarea>
+                        <textarea class="post-textarea" id="edit-content" rows="5" cols="50" required>${postText}</textarea>
                         <div>
                             <button id="edit-post-save-btn" class="btn btn-primary">Save</button>
                             <a id="edit-post-cancel-btn" class="btn btn-outline-secondary">Cancel</a>
