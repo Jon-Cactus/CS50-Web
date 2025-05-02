@@ -10,8 +10,9 @@
             {% if user_obj.username != user.username %}
                 <button class="btn btn-outline-primary"
                     id="toggle-follow-btn"
-                    data-username="{{ user_obj.username }}">
-                    {% if user_obj in user.following %}Unfollow{% else %}Follow{% endif %}</button>
+                    data-username="{{ user_obj.username }}"
+                    data-isfollowing="{% if user_obj.profile in user.profile.following %}true{% else %}false{% endif %}">
+                    {% if user_obj.profile in user.profile.following %}Unfollow{% else %}Follow{% endif %}</button>
             {% endif %}
         {% else %}
             <p class="alert-div">Log in to follow!</p>
