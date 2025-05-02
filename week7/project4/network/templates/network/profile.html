@@ -11,6 +11,7 @@
                 <button class="btn btn-outline-primary"
                     id="toggle-follow-btn"
                     data-username="{{ user_obj.username }}">
+                    <!--Not displaying properly on initial load-->
                     {% if user_obj in user.following %}Unfollow{% else %}Follow{% endif %}</button>
             {% endif %}
         {% else %}
