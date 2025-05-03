@@ -1,3 +1,8 @@
+"""
+Used as a source for status codes:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+"""
+
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -7,6 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST, require_http_methods #https://docs.djangoproject.com/en/5.2/topics/http/decorators
 from django.utils import timezone
 from .models import User, Profile, Post, Comment
 
@@ -28,7 +34,7 @@ def share_post(request):
     except Exception as e:
         return JsonResponse({"error": f"Failed to save post: {str(e)}"}, status=500)
 
-    return JsonResponse({"message": "Post shared successfully.", "post_id": post.id}, status=201)
+    return JsonResponse({"message": "Post shared successfully.","post_id": post.id}, status=201)
 
 @csrf_exempt
 @login_required
@@ -61,27 +67,51 @@ def edit_post(request, post_id):
         }, status=200)
     else:
         return JsonResponse({"error": "Can't save empty posts!"}, status=400)
+          
 
 @csrf_exempt
 @login_required
-def toggle_follow(request, username):
-    # Ensure this route is accessed only by put
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required."}, status=400)
-    try: # Ensure post exists
+@require_POST
+def follow(request, username):
+
+    try: # Ensure user exists
         target_user = Profile.objects.get(user__username=username)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
     
-    profile = request.user.profile
-    if profile == target_user: # Check if the profile has manually entered the URL to follow themself
-        return JsonResponse({"error": "Cannot follow yourself!"}, status=400)
-    # Check for follow or unfollow
-    if profile.following.filter(id=target_user.id).exists():
-        profile.following.remove(target_user)
-        return JsonResponse({"message": f"Unfollowed {username}", "following": False, "follower_count": target_user.follower_count}, status=200)
-    profile.following.add(target_user)
-    return JsonResponse({"message": f"Followed {username}", "following": True, "follower_count": target_user.follower_count}, status=200)
+    # Check edge cases
+    if request.user.profile == target_user: #
+        return JsonResponse({"error": "Cannot follow/unfollow yourself!"}, status=400)
+    if request.user.profile.following.filter(id=target_user.id).exists():
+        return JsonResponse({"error": f"Already following {username}"}, status=400)
+    
+    request.user.profile.following.add(target_user)
+    return JsonResponse({"message": f"Followed {username}",
+                         "following": True,
+                         "follower_count": target_user.follower_count}, status=201)
+
+
+@csrf_exempt
+@login_required
+@require_http_methods(['DELETE'])
+def unfollow(request, username):
+
+    try: # Ensure user exists
+        target_user = Profile.objects.get(user__username=username)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    
+    # Check edge cases
+    if request.user.profile == target_user:
+        return JsonResponse({"error": "Cannot follow/unfollow yourself!"}, status=400)
+    if not request.user.profile.following.filter(id=target_user.id).exists():
+        return JsonResponse({"error": f"Not following {username}"}, status=400)
+
+    request.user.profile.following.remove(target_user)
+    return JsonResponse({"message": f"Unfollowed {username}",
+                         "following": False,
+                         "follower_count": target_user.follower_count}, status=200)
+
 
 @csrf_exempt
 @login_required
@@ -100,15 +130,16 @@ def like_post(request, post_id):
     post.likes.add(profile)
     return JsonResponse({"message": "Liked post!", "is_liked": True, "like_count": post.like_count}, status=200)
 
-def post_paginator(request, query, template, title, user_obj=None):
+def post_paginator(request, query, template, title, **kwargs):
     paginator = Paginator(query, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, template, {
         "page_obj": page_obj,
         "title": title,
-        "user_obj": user_obj
+        **kwargs # Optional context arguments
     })
+
 
 def index(request):
     return post_paginator(
@@ -129,16 +160,18 @@ def following_posts(request):
     )
 
 def profile(request, username):
-    user = User.objects.get(username=username)
-    if not user:
-        return False #TODO render error page
-    
+    try:
+        user_obj = User.objects.get(username=username)
+    except User.DoesNotExist:
+        pass # TODO render error page
+
     return post_paginator(
         request,
-        query=user.profile.post_set.select_related("profile").order_by("-timestamp"),
+        query=user_obj.profile.post_set.select_related("profile").order_by("-timestamp"),
         template="network/profile.html",
-        title=f"{user.username}'s Profile",
-        user_obj=user
+        title=f"{user_obj.username}'s Profile",
+        user_obj=user_obj,
+        is_following=user_obj.profile in request.user.profile.following.all()
         )
 
 

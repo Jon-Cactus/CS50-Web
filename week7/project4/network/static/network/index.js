@@ -17,12 +17,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (toggleFollowBtn) {
         toggleFollowBtn.addEventListener('click', async (event) => {
             const username = event.target.dataset.username;
+            const isFollowing = event.target.dataset.isfollowing === 'true'; // Convert to bool
+            console.log('isFollowing:', isFollowing, typeof isFollowing); // Debug
             if (!username) {
                 console.log(`Couldn't find username`);
                 return;
             }
             toggleFollowBtn.disabled = true; // Disable button while fetching API
-            const result = await toggleFollow(username);
+            const result = await toggleFollow(username, isFollowing);
+            console.log('Result:', result); // Debug
             if (result.success) {
                 if (result.following) {
                     alert("Successfully followed user")
@@ -33,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const followerCount = document.getElementById('follower-count');
                 followerCount.innerText = `Followers: ${result.followerCount}`;
                 toggleFollowBtn.innerText = result.following ? 'Unfollow' : "Follow";
+                event.target.dataset.isfollowing = result.following.toString();
             } else {
                 alert(`Error: ${result.error}`);
             }
@@ -190,10 +194,13 @@ const likePost = async (postId) => {
     }
 }
 
-const toggleFollow = async (username) => {
+const toggleFollow = async (username, isFollowing) => {
     try {
-        const response = await fetch(`/profile/${username}/follow-toggle`,{
-            method: 'POST',
+        // const isFollowingBool = isFollowing === 'true';
+        const method = isFollowing ? 'DELETE' : 'POST';
+        const endpoint = isFollowing ? `/profile/${username}/unfollow` : `/profile/${username}/follow`;
+        const response = await fetch(endpoint,{
+            method: method,
         });
         const data = await response.json();
         if (response.ok) {
