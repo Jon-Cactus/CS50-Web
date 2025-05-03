@@ -11,7 +11,7 @@
             
             <div class="post-interact-div"> <!--contain all elements for interacting with a post-->
                 {% if user.is_authenticated %}
-                    <button class="post-interact-btn" data-id="{{ post.id }}"
+                    <button class=" like-btn post-interact-btn" data-id="{{ post.id }}"
                     data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">❤️</button>
                 {% else %}
                     🩶

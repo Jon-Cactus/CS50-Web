@@ -85,7 +85,7 @@ def follow(request, username):
     if request.user.profile.following.filter(id=target_user.id).exists():
         return JsonResponse({"error": f"Already following {username}"}, status=400)
     
-    request.user.following.add(target_user)
+    request.user.profile.following.add(target_user)
     return JsonResponse({"message": f"Followed {username}",
                          "following": True,
                          "follower_count": target_user.follower_count}, status=201)
@@ -130,15 +130,14 @@ def like_post(request, post_id):
     post.likes.add(profile)
     return JsonResponse({"message": "Liked post!", "is_liked": True, "like_count": post.like_count}, status=200)
 
-
-def post_paginator(request, query, template, title, user_obj=None):
+def post_paginator(request, query, template, title, **kwargs):
     paginator = Paginator(query, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, template, {
         "page_obj": page_obj,
         "title": title,
-        "user_obj": user_obj
+        **kwargs # Optional context arguments
     })
 
 
@@ -162,16 +161,17 @@ def following_posts(request):
 
 def profile(request, username):
     try:
-        user = User.objects.get(username=username)
+        user_obj = User.objects.get(username=username)
     except User.DoesNotExist:
         pass # TODO render error page
-    
+
     return post_paginator(
         request,
-        query=user.profile.post_set.select_related("profile").order_by("-timestamp"),
+        query=user_obj.profile.post_set.select_related("profile").order_by("-timestamp"),
         template="network/profile.html",
-        title=f"{user.username}'s Profile",
-        user_obj=user
+        title=f"{user_obj.username}'s Profile",
+        user_obj=user_obj,
+        is_following=user_obj.profile in request.user.profile.following.all()
         )
 
 
