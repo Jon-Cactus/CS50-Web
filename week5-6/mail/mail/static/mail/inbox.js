@@ -4,12 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const composeView = document.getElementById('compose-view');
   const emailsView = document.getElementById('emails-view');
 
-  // Store compose inputs
-  const composeRecipients = document.getElementById('compose-recipients');
-  const composeSubject = document.getElementById('compose-subject');
-  const composeBody = document.getElementById('compose-body');
-
   // Noticed repeated code for toggling different views (ternary operator learned from FreeCodeCamp)
+  // determine the correct view to display
   const toggleViews = (mailbox) => {
     emailsView.style.display = mailbox === 'emails' ? 'block' : 'none';
     emailView.style.display = mailbox === 'email' ? 'block' : 'none';
@@ -26,18 +22,27 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMail(mailbox, emailsView);
   }
 
-  const composeEmail = (sender, subject, body, timestamp) => {
+  function composeEmail(sender, subject, body, timestamp) {
     // Show compose view and hide other views
     toggleViews('compose');
-    
-    // Reply button is clicked
-    if (arguments.length === 4) {
-      composeRecipients.value = sender;
-      composeSubject.value =`Re: ${subject}`;
-      composeBody.value = `\n\n\nOn ${timestamp}, ${sender} wrote:\n ${body}`
+    // Store compose inputs
+    const composeRecipients = document.querySelector('#compose-recipients');
+    const composeSubject = document.querySelector('#compose-subject');
+    const composeBody = document.querySelector('#compose-body');
+    // When 'reply' button is clicked
+    if (arguments.length >= 4) {
+      try {
+        composeRecipients.value = sender;
+        composeRecipients.setAttribute('disabled', true);
+        composeSubject.value =`Re: ${subject}`;
+        composeBody.value = `\n\n\nOn ${timestamp}, ${sender} wrote:\n ${body}`
+      } catch (error) {
+        console.error('Error setting compose fields:', error);
+      }      
     } else {
       // Clear out composition fields
       composeRecipients.value = '';
+      composeRecipients.removeAttribute('disabled');
       composeSubject.value = '';
       composeBody.value = '';
     }
@@ -90,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
           // Add event listeners to buttons
           if (mailbox === 'inbox') {
             document.getElementById('reply').addEventListener('click', () => {
+              console.log('Reply clicked for email:', email);
               composeEmail(email.sender, email.subject, email.body, email.timestamp); // Pre-fill composeView
             })
             document.getElementById('unread').addEventListener('click', async () => {
@@ -98,10 +104,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('archive').addEventListener('click', async () => {
               await updateMailStatus(emailId, "archived", true);
               loadMailbox('inbox');
-                // I learned my lesson after trying to get away with calling a function that includes
-                // a fetch call and then calling a function directly after it without
-                // chaining it with `.then(...)`. The second function may be called before the 
-                // fetch call completes, creating a race condition (thanks ddb).
+                /* I learned my lesson after trying to get away with calling a function that includes
+                 a fetch call and then calling a function directly after it without
+                 chaining it with `.then(...)` or using `await`. The second function may be called before the 
+                 fetch call completes, creating a race condition (thanks ddb). */
             });
           } else if (mailbox === 'archive') {
             document.getElementById('unarchive').addEventListener('click', async () => {
@@ -145,6 +151,7 @@ async function fetchEmail(emailId) {
     const response = await fetch(`/emails/${emailId}`);
     const data = await response.json();
     console.log(data);
+    console.log(data);
     return data;
   } catch (error) {
     console.log("Error:", error);
@@ -154,6 +161,7 @@ async function fetchEmail(emailId) {
 // issue of not seeing 'read' or 'archived' status changes immediately following clicking an email,
 // 'unread' button, 'archive' button, or 'unarchive' button, 
 // was by implementing an asynchronous function here
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 async function updateMailStatus(id, category, value) {
   try {
     const response = await fetch(`/emails/${id}`, {
@@ -179,10 +187,10 @@ async function sendMail(emailsView) {
       })
     })
     const data = await response.json();
-    console.log(data)
+    console.log(data);
     loadMail('sent', emailsView);
-    } catch (error) {
-      console.log('Error:', error);
-      return false;
-    }
+  } catch (error) {
+    console.log('Error:', error);
+    return false;
   }
+}
