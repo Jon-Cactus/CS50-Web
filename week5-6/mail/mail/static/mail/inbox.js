@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const emailView = document.getElementById('email-view');
   const composeView = document.getElementById('compose-view');
   const emailsView = document.getElementById('emails-view');
+  const mailboxHeader = document.getElementById('mailbox-header');
 
   // Noticed repeated code for toggling different views (ternary operator learned from FreeCodeCamp)
   // determine the correct view to display
@@ -15,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const loadMailbox = (mailbox) => {
     // Show the mailbox and hide other views
     toggleViews('emails');
-    // Show the mailbox name
-    emailsView.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+    // Show the mailbox name (had to create a new element, otherwise the view title would not display)
+    mailboxHeader.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
     emailsView.dataset.mailbox = mailbox; // This was the only way I could properly add the correct eventlistener
     // Load all mail in a given mailbox
     loadMail(mailbox, emailsView);
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function composeEmail(sender, subject, body, timestamp) {
     // Show compose view and hide other views
     toggleViews('compose');
+    mailboxHeader.textContent = '';
     // Store compose inputs
     const composeRecipients = document.querySelector('#compose-recipients');
     const composeSubject = document.querySelector('#compose-subject');
